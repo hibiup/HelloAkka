@@ -4,4 +4,4 @@ embarrassingly parallel 的意识是所有的运算子都完全独立，彼此�
 
 该应用的 actor 将在多 CPU 内核的处理器上得到分发，并且下一步将进一步被分发到集群的不同主机上。
 
-pi 的计算公式：![](src/main/java/respirces/pi-formula.png)
+pi 的计算公式：![](src/main/resources/pi-formula.png)

@@ -8,7 +8,7 @@ import org.scalatest._
 /**
   * Created by 326487162 on 2018/03/21.
   */
-class DeviceSpec extends TestKit(ActorSystem("TestSpec"))
+class Sample_2_Iot_test extends TestKit(ActorSystem("TestSpec"))
   with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
     override def afterAll
     {

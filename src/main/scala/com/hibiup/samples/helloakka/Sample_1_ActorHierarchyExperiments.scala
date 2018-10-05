@@ -58,16 +58,16 @@ package Sample_1_ActorHierarchyExperiment {
 
 package Sample_1_ActorHierarchyExperiment2 {
     import akka.actor.{Actor, ActorSystem, Props}
-
     import scala.io.StdIn
     import scala.util.control.Breaks.{break, breakable}
 
     object ActorHierarchyExperiment {
         def apply() = {
-            val system = ActorSystem("testSystem") //  新建一个 akka://testSystem 管理树
+            /** 1)  新建一个 akka://testSystem 管理树 */
+            val system = ActorSystem("testSystem")
 
-            // 为新建一个管理树生成顶级节点. Props 根据参数类型返回 actor 实例.
-            val rootRef = system.actorOf(Props[SupervisingActor], "first-actor")
+            /*2 为新建一个管理树生成顶级节点. Props 根据参数类型返回 actor 实例. */
+            val rootRef = system.actorOf(Props[SupervisorActor], "first-actor")
             println(s"Root: $rootRef")
 
             println(">>> Press \"q\" to exit <<<")
@@ -84,23 +84,29 @@ package Sample_1_ActorHierarchyExperiment2 {
         }
     }
 
-    class SupervisingActor extends Actor {
+    /** 顶节点模板 */
+    class SupervisorActor extends Actor {
         override def receive: Receive = {
+            /** 3-1) 当根节点收到消息时，通过 context 实例添加一个子节点 */
             case "new" ⇒
-                // 当根节点收到消息时，通过内建的 context 实例添加一个空子节点
-                val childRef = context.actorOf(Props[SupervisedActor], "second-actor")
+                val childRef = context.actorOf(Props[ChildActor], "second-actor")
                 println(s"Second: $childRef")
+
+            /** 4) 向子节点发送消息 */
             case msg ⇒ context.child("second-actor").get ! msg
         }
     }
 
-    class SupervisedActor extends Actor {
+    /** 子节点模板 */
+    class ChildActor extends Actor {
         override def receive: Receive = {
+            /** 4-1) 子节点模拟失败 */
             case "fail" =>
                 // 模拟失败，actor 失败后会被自动重建。
                 println("supervised actor fails now")
                 throw new Exception("I failed!")
 
+            /** 4-2) 子节点停止 */
             case "stop" ⇒
                 // actor 主动终结自己的方式。终结之前，它会调用 postStop() 方法
                 println(s"I'm killing myself! $self")
@@ -110,15 +116,16 @@ package Sample_1_ActorHierarchyExperiment2 {
         // actor 初创之后，执行之前，会调用该函数
         override def preStart(): Unit = {
             println("child started")
+            /** 5) 加入一个哑孙节点 */
             context.actorOf(Props[GrandChildActor], "second")
         }
 
         override def postStop(): Unit = println("child stopped")
     }
 
+    /** 孙节点模板 */
     class GrandChildActor extends Actor {
         override def preStart(): Unit = println("grand child started")
-
         override def postStop(): Unit = println("grand child stopped")
 
         // Actor.emptyBehavior is a useful placeholder when we don't

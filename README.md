@@ -1,4 +1,11 @@
-# Sample03:
+# Akka 2.5 教程案例
+https://doc.akka.io/docs/akka/2.5/guide/tutorial_1.html
+
+## Sample01:
+
+一个简单的案例。
+
+## Sample03:
 
 这个例子以一个 Iot 应用为例，参考地址：https://doc.akka.io/docs/akka/2.5/guide/tutorial_2.html
 ![](src/main/resources/arch_tree_diagram.png)

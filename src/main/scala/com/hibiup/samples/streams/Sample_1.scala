@@ -35,16 +35,31 @@ package Sample_1 {
             /** 4）从数据源中萃取数据并处理。
               *
               * 启动数据源工作流的方法都以 run 开头，该方法隐式从上下文中获得 akka stream 的执行引擎。最终返回一个
-              * Future。在本例中执行引擎将持续从 source 中读取数据然后传递给第一个参数，第一个参数是将值打印出来。*/
-            val done: Future[Done] = source.runForeach(println) // 隐式获得 materializer 参数
-
-            /** 4-1) source 是可以重用的，再定义一个将数据写入文件的处理流程。
+              * Future。在本例中执行引擎将持续从 source 中读取数据然后传递给第一个参数，第一个参数是将值打印出来。
               *
-              * scan 方法类似 fold，初始值是 BitInt(1),然后逐个取出 Source 中的元素 next，得到每一级的阶乘值 acc，存入新的 Source。*/
+              * akka-stream 是由数据源头 Source，流通节点 Flow 和数据流终点 Sink 三个框架性的流构件。Source 和 Sink
+              * 是 stream 的两个独立端点，而 Flow 处于 stream Source 和 Sink 中间，可能由 0 到多个通道式的节点组成，
+              * 每个节点代表某些数据流元素转化处理功能，它们的链接顺序代表整体作业的流程。
+              *
+              * 以下例子由 Source 直接到 Sink
+              * */
+            val done: Future[Done] = source.runWith(Sink.foreach(println)) // 隐式获得 materializer 参数
+
+            /** 4-1) source， flow 和 sink 都是可以重用的，下面定义一个将数据写入文件的处理流程。重用之前的 Source，经由两个
+              * flow 处理后结果输出到文件 Sink。(更完整的可重用例子参见：https://doc.akka.io/docs/akka/2.5/stream/stream-quickstart.html)
+              *
+              * */
+            // Flow: scan + zip。 scan 方法类似 fold，初始值是 BitInt(1),然后逐个取出 Source 中的元素 next，得到每一级的阶
+            //       乘值 acc，将结果集传给下一级 zip Flow。
             val factorials = source.scan(BigInt(1))((acc, next) ⇒ {/* println(acc, next);*/ acc * next })
+                .zipWith(Source(0 to 100))((num, idx) ⇒ s"$idx! = $num")
+            // Flow: map
             val accent: Future[IOResult] =
-                factorials.map(num ⇒ ByteString(s"$num\r\n"))
-                    .runWith(FileIO.toPath(Paths.get("C:\\\\Temp\\numbers.txt")))
+                factorials.map(line ⇒ ByteString(s"$line\r\n"))
+                    .runWith{
+                        // Sink
+                        FileIO.toPath(Paths.get("C:\\\\Temp\\numbers.txt"))
+                    }
 
             /** 5）等待 Stream 处理结束后关闭 Akka System。
               *

@@ -41,7 +41,7 @@ package Sample_1 {
             /** 4-1) source 是可以重用的，再定义一个将数据写入文件的处理流程。
               *
               * scan 方法类似 fold，初始值是 BitInt(1),然后逐个取出 Source 中的元素 next，得到每一级的阶乘值 acc，存入新的 Source。*/
-            val factorials = source.scan(BigInt(1))((acc, next) ⇒ {acc * next})
+            val factorials = source.scan(BigInt(1))((acc, next) ⇒ {/* println(acc, next);*/ acc * next })
             val accent: Future[IOResult] =
                 factorials.map(num ⇒ ByteString(s"$num\r\n"))
                     .runWith(FileIO.toPath(Paths.get("C:\\\\Temp\\numbers.txt")))
@@ -49,14 +49,10 @@ package Sample_1 {
             /** 5）等待 Stream 处理结束后关闭 Akka System。
               *
               * 关闭方法由 Future 的 onComplete 回调函数执行，回调函数隐式获得 AkkaSystem 的执行上下文。*/
-            /*val result = for {
-                d <- done
-                a <- accent
-            }yield(d,a)*/
             val result = Future.sequence(List(done,accent))
             result.onComplete(_ ⇒ { println("Finish!!");system.terminate() }) // 隐式获得 ec
 
-            /** 6) onComplete 会异步执行，如果是程序的最后一行进程会提前结束，因此退出前必须等待 result 确实完成。*/
+            /** 6) 因为 onComplete 是异步操作，如果是最后一行，任务可能会被迫终止，因此退出前必须等待 result 完成。*/
             Await.result(result, 10 seconds)
         }
     }

@@ -1,8 +1,6 @@
 package com.hibiup.samples.streams
 
 package Sample_1 {
-
-
     object HelloAkkaStream {
         import akka.stream._
         import akka.stream.scaladsl._
@@ -19,12 +17,10 @@ package Sample_1 {
             /** 1）初始化一个 Akka System */
             implicit val system = ActorSystem("testSystem") // 隐式生成 ActorRefFactory 的子类 ActorSystem。
 
-            /** 2）基于 ActorSystem 生成 Akka Stream 的执行引擎。
-              *
-              * 这个引擎将从数据源中读取数据，并将数据传递给执行函数。 */
+            /** 2）基于 ActorSystem 生成 Akka Stream 的执行引擎。 这个引擎将从数据源中读取数据，并将数据传递给执行函数。 */
             implicit val materializer = ActorMaterializer() // 隐式获得 system。并生成隐式 ActorMeterializer 实例。
 
-            implicit val ec = system.dispatcher    // 隐式生成 ExecutionContext 的子类 ExecutionContextExecutor
+            implicit val ec = system.dispatcher    // 隐式生成 ExecutionContext(线程池) 的子类 ExecutionContextExecutor
 
             /** 3）定义一个数据发射源 Source。
               *

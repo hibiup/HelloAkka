@@ -54,17 +54,19 @@ object Sample_2_Backpressure {
         /* mapConcat 相当于 flatMap，它会提取出容器中的元素重新组合成 flatten set */
         //val flatTagFlow: Source[Hashtag, NotUsed] = tweets.mapConcat(_.hashtags)
 
-        /** 3） 定义一个 Sink 处理 HashTag */
+        /** 3） 定义一个 Sink 处理 HashTag，每 1 秒处理一条数据 */
         val writeHashtags: Sink[String, Future[Done]] =  Sink.foreach{x =>
-            Thread.sleep(1000)    // 每 1 秒处理一条数据
+            Thread.sleep(1000)
             println(x)
         }
 
         /** 4) 串起 Source -> Flow -> Sink */
         val result = tweets.via(tagFlow)
                 .throttle(1, 10 microsecond)  // throttle 可以将流速限制在每10毫秒一条。
-                /** 在另外一个线程里异步执行 Sink 任务。因为消息发送的速度（10mm）快于处理速度（1m），因为Buffer只能存放 2 条，
-                  * 并且采用了 dropTail 策略，因此最终也就只接收了两条消息 */
+                /** async 意味着从此以下执行在另外一个线程里。必须放在新线程中，否则发送任务也会休眠导致看不出效果。
+                  *
+                  * 因为消息发送的速度（10mm）快于处理速度（1m），因为Buffer只能存放 2 条，并且采用了 dropTail
+                  * 策略，因此最终也就只接收了两条消息 */
                 .async.runWith(writeHashtags)
 
         // 等待结束

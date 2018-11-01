@@ -43,6 +43,7 @@ object Device {
   //1) 读取/返回温度
   final case class ReadTemperature(requestId: Long)
   final case class RespondTemperature(requestId: Long, value: Option[Double])
+
   // 2) 设置温度及其返回消息
   final case class RecordTemperature(requestId: Long, value: Double)
   final case class TemperatureRecorded(requestId: Long)

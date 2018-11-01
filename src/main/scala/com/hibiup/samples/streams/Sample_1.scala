@@ -1,5 +1,9 @@
 package com.hibiup.samples.streams
 
+/**
+  *  Akka之Flow相关API总结: https://www.jianshu.com/p/91bf067f1a2a
+  * */
+
 package Sample_1 {
     object HelloAkkaStream {
         import akka.stream._
@@ -25,7 +29,15 @@ package Sample_1 {
             /** 3）定义一个数据发射源 Source。
               *
               * 它有两个参数，第一个是数据类型，比如以下这个数据源将产生 1 到 100 整数。
-              * 第二个参数任意，可以用于产生一些辅助值，比如可以是数据源的IP地址等相关数据。如果没有可以用 NotUsed */
+              * 第二个参数任意，可以用于产生一些辅助值，比如可以是数据源的IP地址等相关数据。如果没有可以用 NotUsed
+              *
+              * Akka Streams 是一个具有两个概念的混合物：流中“流动”的值，以及流之外产生和可见的值。 Akka Stream 只有在它
+              * 处于封闭状态下时，也就是说它只有被分配了开始和结束（Source 和 Sink）时才能工作，而 Flow 之外的任何人
+              * 都无法窥视它的内部。 如果您所做的只是将数据从 A 点传送到 B 点，那么这就没关系，但是如果您想要这个流产生您
+              * 想要查看的值，那么您将无法做到因为你接触不到内部。
+              *
+              * 如果确实关心 Flow 内部的值，那么参考 Sample_3_Graph
+              * */
             val source: Source[Int, NotUsed] = Source(1 to 100)
 
             /** 4）从数据源中萃取数据并处理。

@@ -8,7 +8,9 @@ import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, RunnableGraph, Sink, Sou
 import scala.concurrent.{Await, Future}
 
 object Sample_2_Backpressure {
-    /** 下面这个例子通过模拟作者 Author 在 Tweet 发布标签 Hashtag(#abc) 来演示如何解决背压问题（backpressure） */
+    /**
+      * 下面这个例子通过模拟作者 Author 在 Tweet 发布标签 Hashtag(#abc) 来演示如何解决背压问题（backpressure）
+      * */
 
     // Model
     // 作者
@@ -47,8 +49,16 @@ object Sample_2_Backpressure {
                 .mapConcat(identity)                // 通过与“幺元”的结合还原Stream中的元素类型（否则下面的 "_" 将无法识别类型 ）
                 .map(_.name.toUpperCase)            // 取出 tag 转成大写
                 /** 为 Flow 制定一个 Buffer, 长度为2，并指定 Overflow 策略：
-                  * dropTail:      丢弃后进入的数据
-                  * backpressure:  当buffer满了后进行背压，在此情况下上游将停止发送直道缓冲器有新的空间可用。 */
+                  *
+                  * emitEarly：如果缓冲区已满，当新的元素可用时，这个策略不等待直接发送下一个元素到下游。
+                  * dropHead：如果缓冲区已满，当新的元素到达，丢弃缓冲区中最旧（前）的元素，从而为新元素留出空间。
+                  * dropTail：如果缓冲区已满，当新的元素到达，丢弃缓冲区中最新（后）的元素，从而为新元素留出空间。
+                  * dropBuffer：如果缓冲区已满，当新的元素到达，丢弃缓冲区中所有元素，从而为新元素留出空间。
+                  * dropNew：如果缓冲区已满，当新的元素到达，丢弃这个新元素。
+                  * backpressure:  当buffer满了后进行背压，在此情况下上游将停止发送直道缓冲器有新的空间可用。
+                  * fail：如果缓冲区已满，当新的元素到达，则以失败完成流。
+                  *
+                  *  */
                 .buffer(2, OverflowStrategy.dropTail)
 
         /* mapConcat 相当于 flatMap，它会提取出容器中的元素重新组合成 flatten set */
@@ -64,6 +74,7 @@ object Sample_2_Backpressure {
         val result = tweets.via(tagFlow)
                 .throttle(1, 10 microsecond)  // throttle 可以将流速限制在每10毫秒一条。
                 /** async 意味着从此以下执行在另外一个线程里。必须放在新线程中，否则发送任务也会休眠导致看不出效果。
+                  * (async 边界参考：asyncBoundary.png)
                   *
                   * 因为消息发送的速度（10mm）快于处理速度（1m），因为Buffer只能存放 2 条，并且采用了 dropTail
                   * 策略，因此最终也就只接收了两条消息 */

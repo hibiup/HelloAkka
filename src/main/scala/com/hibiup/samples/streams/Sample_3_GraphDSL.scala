@@ -29,7 +29,7 @@ import scala.concurrent.{Await, Future}
 
 import scala.concurrent.duration._
 
-object Sample_3_Graph {
+object Sample_3_GraphDSL {
     /** 1) 定义 Source */
     val in = Source[Int](11 to 21)
 

@@ -42,11 +42,10 @@ object Sample_3_GraphDSL {
     val out = Sink.foreach(println)
 
     /**
-      * 4) 定义一个 Graph。参数是一个隐式传入的 graph builder
-      *    builder 是 mutable 的，但是最终生成的 graphDSL 是 immutable 并且线程安全的。如果我们不关心 Flow 内部的执行过程和结果，
-      *    那么使用 NotUsed 作为类型参数。
+      * 4) 定义一个 Graph。参数是一个隐式传入的 graph builder, builder 是 mutable 的，但是最终生成的 graphDSL 是 immutable
+      *    并且线程安全的。如果不关心 Flow 内部的执行过程，也不等待执行结果，那么使用 NotUsed 作为类型参数。
       *
-      *    如果我们确实希等待结果：
+      *    但是如果我们确实希等待结果：
       *      1. 将 Sink 定义在 GraphDSL 的外面（第3步，Source 和 Flow 不是必须的），将外部 Sink 作为参数传递给 create, 它会被再次
       *      传递给 builder
       *      2. 将 builder 的类型参数设置为 Future[Done]。

@@ -40,7 +40,8 @@ object Sample_4_Exception {
     }
 
     class RootActor extends Actor {
-        implicit val timeout:Duration = Duration.Inf
+        //implicit val timeout:Duration = Duration.Inf
+        implicit val timeout:Timeout = 60 second
         implicit val ec: ExecutionContext = context.dispatcher
 
         /** B-1) 定义子系统监控策略：如果失败则重启子系统. OneForOne 策略是只启动失败的这个 Actor。还有一个 AllForOne 策略是
@@ -50,7 +51,7 @@ object Sample_4_Exception {
         override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 5, withinTimeRange = 60 seconds) {
             case e: Exception => {
                 e.printStackTrace()
-                Restart  // 重启
+                Resume  // 忽略错误
             }
         }
 
@@ -93,7 +94,7 @@ object Sample_4_Exception {
                 childRef ! "Fail"
 
                 //Thread.sleep(1000)
-                childRef ! "Other"
+                childRef ? "Other"
             }
         }
     }
@@ -123,7 +124,7 @@ object Sample_4_Exception {
                 OneForOneStrategy() {
                     case e: Exception ⇒ {
                         e.printStackTrace()
-                        Restart  // 重启
+                        Resume  // 忽略错误
                     }
                     case _ ⇒ Escalate
                 }))
@@ -132,12 +133,15 @@ object Sample_4_Exception {
         val rootRef = system.actorOf(supervisor, name = "echoSupervisor")
         rootRef ! "Start"
 
-        Thread.sleep(3000)
+        Thread.sleep(1000)
         /** A-3 通知 root 产生异常 */
         rootRef ? "Fail"
 
+        Thread.sleep(1000)
+        rootRef ? "Start"
+
         /** 退出 Actor system */
-        //rootRef ? "Quit"
+        rootRef ? "Quit"
 
         Await.result(system.whenTerminated, Duration.Inf)
     }

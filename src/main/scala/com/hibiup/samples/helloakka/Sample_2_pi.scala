@@ -7,6 +7,7 @@ package com.hibiup.samples.helloakka
 import akka.actor._
 import akka.routing.{ActorRefRoutee, RoundRobinPool, RoundRobinRoutingLogic, Router}
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 
 //import akka.routing.RoundRobinRouter
@@ -113,7 +114,7 @@ object Pi extends App {
           .format(pi, duration))
 
         // 退出程序
-        context.system.terminate()
+        Await.result(context.system.terminate(), 10 second)
     }
   }
 

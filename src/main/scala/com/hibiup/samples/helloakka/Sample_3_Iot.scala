@@ -1,6 +1,9 @@
 package com.hibiup.samples.helloakka
 
-import akka.actor.{ ActorSystem, Actor, ActorLogging, Props }
+import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
 import scala.io.StdIn
 
 // 主程序
@@ -14,7 +17,7 @@ object IotApp {
       // Exit the system after ENTER is pressed
       StdIn.readLine()
     } finally {
-      system.terminate()
+      Await.result(system.terminate(), 10 second)
     }
   }
 }

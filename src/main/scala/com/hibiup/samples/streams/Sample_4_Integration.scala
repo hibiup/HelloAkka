@@ -57,7 +57,8 @@ object Sample_4_Integration {
 
         implicit val askTimeout = Timeout(5.seconds)
         /** 5) mapAsync + ask Actor 池，得到 Actor */
-        val result = in.mapAsync(parallelism = numOfActors)(elem => ask(clientActorPool, elem).mapTo[String])
+        val result = in.mapAsync(parallelism = numOfActors)(elem => ask(clientActorPool, elem)
+                .mapTo[String])    // Actor send back String.
                 .runWith(Sink.foreach(println))
 
         // 等待结束

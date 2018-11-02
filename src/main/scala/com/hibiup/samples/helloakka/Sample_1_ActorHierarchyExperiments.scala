@@ -9,6 +9,9 @@ package Sample_1_ActorHierarchyExperiment {
       * */
     import akka.actor.{Actor, ActorSystem, Props}
 
+    import scala.concurrent.Await
+    import scala.concurrent.duration._
+
     object ActorHierarchyExperiment {
         def apply() = {
             /** 1-1) 初始化一个 Actor system (akka://testSystem/)*/
@@ -28,7 +31,7 @@ package Sample_1_ActorHierarchyExperiment {
             firstRef ! "stop"
 
             /** 4) 删除 ActorSystem */
-            system.terminate()
+            Await.result(system.terminate(), 10 second)
         }
     }
 

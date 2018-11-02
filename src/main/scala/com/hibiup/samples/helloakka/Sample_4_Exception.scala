@@ -135,13 +135,13 @@ object Sample_4_Exception {
 
         Thread.sleep(1000)
         /** A-3 通知 root 产生异常 */
-        rootRef ? "Fail"
+        rootRef ! "Fail"
 
         Thread.sleep(1000)
-        rootRef ? "Start"
+        rootRef ! "Start"
 
         /** 退出 Actor system */
-        rootRef ? "Quit"
+        rootRef ! "Quit"
 
         // 收尾清理
         system.whenTerminated.onComplete{

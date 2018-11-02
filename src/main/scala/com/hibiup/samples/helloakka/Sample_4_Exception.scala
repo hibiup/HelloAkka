@@ -143,6 +143,11 @@ object Sample_4_Exception {
         /** 退出 Actor system */
         rootRef ? "Quit"
 
+        // 收尾清理
+        system.whenTerminated.onComplete{
+            case x => ??? // TODO: 结束进程
+        }
+
         Await.result(system.whenTerminated, Duration.Inf)
     }
 }

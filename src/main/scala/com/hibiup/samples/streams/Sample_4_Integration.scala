@@ -61,7 +61,12 @@ object Sample_4_Integration {
                 .mapTo[String])    // Actor send back String.
                 .runWith(Sink.foreach(println))
 
-        // 等待结束
+        // 被动等待结束（option）
+        result.onComplete{
+            case x => ??? // TODO: 结束进程
+        }(sys.dispatcher)
+
+        // 主动等待结束
         Await.result(result, 10 seconds)
     }
 }

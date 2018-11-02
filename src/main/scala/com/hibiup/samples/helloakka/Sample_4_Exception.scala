@@ -9,6 +9,10 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration._
 
 object Sample_4_Exception {
+    /** 参考：
+      *   https://doc.akka.io/docs/akka/2.5/general/supervision.html
+      *   https://hk.saowen.com/a/6eab3a51f5adc2c16663fec0c815dd2ca51cf5908c61f5a7d8957f7d8c03fd9b
+      * */
     class ChileActor extends Actor {
         override def receive = {
             /** 模拟异常发生在子系统里 */
@@ -28,7 +32,7 @@ object Sample_4_Exception {
         /** B-1) 定义子系统监控策略：如果失败则重启子系统. OneForOne 策略是只启动失败的这个 Actor。还有一个 AllForOne 策略是
           *     重启所的 Actor，仅用于有强烈依赖关系的 Actor 系统，比如数据库联接 Actor 重启了，所有其它 Actor 都必须重启。 */
         override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 5, withinTimeRange = 60 seconds) {
-            case e: RuntimeException => {
+            case e: Exception => {
                 e.printStackTrace()
                 Restart  // 重启
             }
@@ -73,7 +77,9 @@ object Sample_4_Exception {
 
         /** A-1 定义 root Actor 的时候同时定义一个 supervisor */
         val supervisor = BackoffSupervisor.props(
-            Backoff.onStop(
+            /** 当一个应该永远存在的 Actor 由于某个原因而停止时用 onStop。
+              * 当一个 Actor 因为异常而失败时用 onFailure。*/
+            Backoff.onFailure(
                 /** 在 supervisor 中引用 root props */
                 rootProps,
                 childName = "root-actor",
@@ -84,7 +90,7 @@ object Sample_4_Exception {
             ).withAutoReset(10.seconds) // reset if the child does not throw any errors within 10 seconds
                     .withSupervisorStrategy(
                 OneForOneStrategy() {
-                    case e: RuntimeException ⇒ {
+                    case e: Exception ⇒ {
                         e.printStackTrace()
                         Restart  // 重启
                     }

@@ -21,7 +21,7 @@ object Sample_4_Integration {
     /** 1) 定义 Actor 之间的数据包 */
     case class Package(id: Int, msg: String)
 
-    /** 2) 定义 Actor */
+    /** 2) 定义 Actor 生成它的 Props */
     class ClientActor extends Actor with ActorLogging {
         override def receive: Receive = {
             case Package(id, msg) =>
@@ -33,18 +33,18 @@ object Sample_4_Integration {
     def props = Props(new ClientActor)
 
     def apply() {
-        /** 1) 新建 Akka system */
+        /** 3) 新建 Akka system */
         implicit val sys = ActorSystem("demo-system")
-        /** 2) 得到 Stream 的物化器 */
+        /** 4) 得到 Stream 的物化器 */
         implicit val mat = ActorMaterializer()
 
-        /** 3) 定义一个 ActorRef 池，初始化 3 个 Actor*/
+        /** 5) 定义一个 ActorRef 池，初始化 3 个 Actor*/
         val numOfActors = 3
         val routee: List[ActorRef] = List.fill(numOfActors)(sys.actorOf(props))
         val routeePaths: List[String] = routee.map{ref => "/user/"+ref.path.name}
         val clientActorPool = sys.actorOf(RoundRobinGroup(routeePaths).props())
 
-        /** 4) 定义 Source */
+        /** 6) 定义 Source */
         val in = Source[Package](
             Package(1, "Hello".toLowerCase())
                     :: Package(2,"World".toLowerCase())
@@ -56,7 +56,7 @@ object Sample_4_Integration {
         )
 
         implicit val askTimeout = Timeout(5.seconds)
-        /** 5) mapAsync + ask Actor 池，得到 Actor */
+        /** 7) mapAsync + ask Actor 池，得到 Actor */
         val result = in.mapAsync(parallelism = numOfActors)(elem => ask(clientActorPool, elem)
                 .mapTo[String])    // Actor send back String.
                 .runWith(Sink.foreach(println))

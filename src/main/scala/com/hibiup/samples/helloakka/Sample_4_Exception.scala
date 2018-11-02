@@ -23,6 +23,20 @@ object Sample_4_Exception {
 
             case x => println(x)
         }
+
+        /** supervisorStrategy 重启时触发这个方法。*/
+        override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
+            println(s"${self.path} is restarting by ${reason.getMessage}")
+            super.preRestart(reason, message)
+        }
+        override def postRestart(reason: Throwable): Unit = {
+            println(s"${self.path} is restarted by ${reason.getMessage}")
+            super.postRestart(reason)
+        }
+        override def postStop(): Unit = {
+            println(s"${self.path} is stopped!")
+            super.postStop()
+        }
     }
 
     class RootActor extends Actor {
@@ -30,7 +44,9 @@ object Sample_4_Exception {
         implicit val ec: ExecutionContext = context.dispatcher
 
         /** B-1) 定义子系统监控策略：如果失败则重启子系统. OneForOne 策略是只启动失败的这个 Actor。还有一个 AllForOne 策略是
-          *     重启所的 Actor，仅用于有强烈依赖关系的 Actor 系统，比如数据库联接 Actor 重启了，所有其它 Actor 都必须重启。 */
+          *      重启所的 Actor，仅用于有强烈依赖关系的 Actor 系统，比如数据库联接 Actor 重启了，所有其它 Actor 都必须重启。
+          *      （实际上 BackoffSupervisor 也可以用于子 Actor 监控）
+          * */
         override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 5, withinTimeRange = 60 seconds) {
             case e: Exception => {
                 e.printStackTrace()
@@ -38,9 +54,24 @@ object Sample_4_Exception {
             }
         }
 
+        /** supervisorStrategy 重启时触发这个方法。*/
+        override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
+            println(s"${self.path} is restarting by ${reason.getMessage}")
+            super.preRestart(reason, message)
+        }
+        override def postRestart(reason: Throwable): Unit = {
+            println(s"${self.path} is restarted by ${reason.getMessage}")
+            super.postRestart(reason)
+        }
+
         /** B-2）正常建立子 Actor */
         override def preStart() : Unit = {
             context.actorOf(Props[ChileActor], "will-fail-actor")// start the child when supervisor starts
+        }
+
+        override def postStop(): Unit = {
+            println(s"${self.path} is stopped!")
+            super.postStop()
         }
 
         override def receive = {
@@ -61,7 +92,7 @@ object Sample_4_Exception {
                 /** B-3) 通知子系统产生异常 */
                 childRef ! "Fail"
 
-                Thread.sleep(1000)
+                //Thread.sleep(1000)
                 childRef ! "Other"
             }
         }

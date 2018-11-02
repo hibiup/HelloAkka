@@ -94,7 +94,7 @@ object Sample_4_Exception {
                 childRef ! "Fail"
 
                 //Thread.sleep(1000)
-                childRef ? "Other"
+                childRef ! "Other"
             }
         }
     }

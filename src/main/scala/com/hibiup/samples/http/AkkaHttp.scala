@@ -3,12 +3,13 @@ package com.hibiup.samples.http
 import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCode, StatusCodes}
+import akka.http.scaladsl.model._
 import akka.stream.ActorMaterializer
 import akka.http.scaladsl.server.Directives._
 
 import scala.concurrent.{Await, Future, Promise}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+import akka.util.ByteString
 import spray.json.DefaultJsonProtocol._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,7 +40,7 @@ object FirstRoute {
     def apply(port:Int) {
         import scala.concurrent.duration._
 
-        val ending_promise = Promise[Boolean]()
+        //val ending_promise = Promise[Boolean]()
 
         /** 1) 新建 Akka system */
         implicit val system = ActorSystem("my-system")
@@ -87,10 +88,17 @@ object FirstRoute {
                 }
             } ~
             get {
-                path("stop") {
-                    complete{
-                        Future {
-                            HttpEntity(ContentTypes.`text/html(UTF-8)`, """{ "Result": "Stoped" }""")
+                pathPrefix("order" / Segment) { email =>
+                    complete {
+                        email match {
+                            case "a" => {
+                                HttpResponse(StatusCodes.OK,
+                                    entity = HttpEntity(ContentTypes.`application/json`, ByteString(s"""{"existing": true}""")))
+                            }
+                            case "b" => {
+                                HttpResponse(StatusCodes.NotFound,
+                                    entity = HttpEntity(ContentTypes.`application/json`, ByteString(s"""{"exception": "${new RuntimeException}"}""")))
+                            }
                         }
                     }
                 }

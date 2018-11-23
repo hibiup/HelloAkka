@@ -77,7 +77,7 @@ object FirstRoute {
                 /* 1) 和 pathPrefix 一样，path 返回一个 FutureDirectives */
                 path("order") {
                     /* 2）entity 接受 post 传入的参数。通过 as 的隐式 orderFormat 参数作为逆化器将接收到的数据
-                     *    还原成需要的类型。 */
+                     *    还原成需要的类型。（同时需要　import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._） */
                     entity(as[Order]) { order =>
                         val saved: Future[Done] = saveOrder(order)
                         /* 3）FutureDirectives 的 onComplete 中预订一成功后的处理（返回成功信息给客户端）。*/

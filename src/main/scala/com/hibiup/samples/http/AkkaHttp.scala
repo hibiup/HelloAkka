@@ -76,7 +76,7 @@ object FirstRoute {
             post {
                 /* 1) 和 pathPrefix 一样，path 返回一个 FutureDirectives */
                 path("order") {
-                    /* 2）entity 接受 post 传入的参数。通过 FromRequestUnmarshaller 作为逆化器（由 as 类返回）将接收到的数据
+                    /* 2）entity 接受 post 传入的参数。通过 as 的隐式 orderFormat 参数作为逆化器将接收到的数据
                      *    还原成需要的类型。 */
                     entity(as[Order]) { order =>
                         val saved: Future[Done] = saveOrder(order)

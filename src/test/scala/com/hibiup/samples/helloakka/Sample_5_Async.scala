@@ -112,14 +112,14 @@ class Example_5_Couroutine extends FlatSpec{
           * Thread-23: Ball 22 with 963 hits!
           * Thread-23: Ball 61 with 962 hits!
           * Thread-23: Ball 65 with 962 hits!
-          * Thread-23: Ball 63 with 962 hits!
+          * Thread-23: Ball 93 with 962 hits!
           * Thread-23: Ball 62 with 962 hits!
           * Thread-23: Ball 3 with 965 hits!
-          * Thread-23: Ball 66 with 962 hits!
+          * Thread-23: Ball 78 with 962 hits!
           * Thread-21: Ball 23 with 963 hits!
-          * Thread-21: Ball 68 with 962 hits!
+          * Thread-21: Ball 89 with 962 hits!
           * Thread-21: Ball 69 with 962 hits!
-          * Thread-21: Ball 11 with 964 hits!
+          * Thread-21: Ball 100 with 964 hits!
           * Thread-21: Ball 64 with 962 hits!
           * Thread-21: Ball 24 with 963 hits!
           *
@@ -127,17 +127,26 @@ class Example_5_Couroutine extends FlatSpec{
           * 你可能看到的和我略有不同，但是我们可以很清晰地看到总共只有三个工作线程在工作，并且他们都随机地出现在任何一场比赛中，每个球
           * 的击打总次数甚至高达近 1000 次！也就是说我们只用三个并行线程就完成了 100 个并发任务，并且每个任务被调度了近 1000 次！过
           * 程中没有任何一个线程在执行任何一项任务时等待任何一个其他调度的完成，但是即便如此繁忙，也没有任何一颗球落在地上。在这个例子
-          * 中我们对异步多任务系统总结以下几点：
+          * 中我们可以对异步多任务系统总结以下几点军规：
           *
-          * 一、拒绝在线程中使用任何等待操作（最后的 sleep 除外。）
-          * 二、不必惧怕任何线程调度的结束，并且应该欢迎线程尽早结束。只有线程结束它才会回到线程池已备重新调度，而等待的线程不能被重复
-          *    使用。
-          * 三、线程并不是越多越好，多余的线程如果没有机会参与任务调度，那么并不能提高整体效率。笔者将线程数设置为与这台试验机内核数相
-          *    同的 24 个后再次执行得到的结果甚至略低于 3 线程的结果。
-          * 四、akka actor 的个数与线程数，甚至任务数没有关系，在这个例子中，无论多少个任务，多少个线程，都复用了同一个 actor
-          * 五、消息驱动与线程调度属于不同的范畴，两者也没有直接关系，消息驱动解决的是任务的解耦和分布能力，同时消息可能带来的负面影响
-          *    是通道的宽度，最后笔者附上这个程序的 Future 模型，在这模型中因为没有消息瓶颈，每个线程被调度的次数甚至可以高达 1200
-          *    次以上！但是程序也因此失去了分布式部署的能力，但是这属于异步系统另一个话题领域，本文不做详细介绍。
+          * 一、拒绝在线程中使用任何等待操作（最后的 sleep 除外），不必惧怕任何线程调度的结束，并且应该欢迎线程尽早结束。只有死的
+          *    （结束）的线程才是好的线程，任何半死不活（等待）的线程都是耍流氓。
+          * 二、线程并不是越多越好，多余的线程如果没有机会参与任务调度，那么并不能提高整体效率。笔者将线程数设置为与这台试验机内核数相
+          *    同的 24 个后再次执行得到的结果甚至略低于 3 线程。
+          * 三、对线程的请求也不是越少越好，请求多少线程并不意味着就能得到多少线程，如果池子里只有3 个，即便请求 10000 次，最多时也只
+          *    有3 个线程在运行，多出来的请求都压在队列里，只不过多消耗了一点点内存而已，并不会给系统带来多少压力。
+          * 四、Future 不是线程，Future 只是一张船票（线程请求存根），得到一张 Future 意味着你“将”会登上某条船（线程），但你什么时
+          *    候能登上取决于队列的长度和吞吐率。
+          * 五、消息驱动是队列的一种驱动模型，与线程调度属于不同的范畴，消息驱动解决的是任务的解耦和分布能力，同时消息可能带来的负面影响
+          *    是通道的吞吐能力，消息通道本身可能是会带锁的，因此它本身的设计是个独立话题。
+          * 六、akka actor 是业务执行对象，是船（线程）上的乘客，线程只管带着它跑一圈，线程本身不参与 actor 的任何行为，因此它的多少
+          *    与线程没有关系，在这个例子中，无论多少个任务，多少个线程，都复用了同一个 actor。actor。
+          * 七、系统里唯一对线程数、线程调度方式、调度效率等等因数有影响的东西是线程池，除此之外的任何担忧都是多此一举。
+          *
+          * 我们通过这样一个双边（乒乓）系统演示了以上七条军规，但是它只是异步模型中的一个最小单位，真实的业务模型通常是多边模型，复杂
+          * 程度会远远超过这个案例，实施的复杂度和要考虑的因数也远远超过本例，但是不管多么复杂，以上这几条都是你继续出发的基础。最后附上这
+          * 个程序的 Future 模型，在这模型中因为没有消息瓶颈，每个线程被调度的次数甚至可以高达 1200 次以上！但是程序也因此失去了分布
+          * 式部署的能力，程序的分布部署能力是另一个话题领域，本文不打算做详细介绍。
           * */
     }
 
@@ -146,10 +155,10 @@ class Example_5_Couroutine extends FlatSpec{
         implicit val player: ExecutionContext = ExecutionContext.fromExecutor(new ForkJoinPool(3))
 
         /** 定义击球动作（业务方法） */
-        def playGame(hit:Hit):Future[Hit] = Future[Hit] {
-                println(s"Thread-${Thread.currentThread.getId}: Ball ${hit.ball} with ${hit.count} hits!")
-                hit
-            }.map { case Hit(ball, count) => playGame(Hit(ball, count + 1)) }.asInstanceOf[Future[Hit]]
+        def playGame: Hit => Future[Hit] = hit => Future {
+            println(s"Thread-${Thread.currentThread.getId}: Ball ${hit.ball} with ${hit.count} hits!")
+            Hit(hit.ball, hit.count+1)
+        }.map { playGame }.asInstanceOf[Future[Hit]]
 
         /** 同时开出 100 个球（对应 100 场比赛） */
         for (i <- 1 to 100) yield playGame(Hit(i,1))

@@ -1,6 +1,7 @@
 package com.hibiup.samples.streams.sample_4
 
-/** 在现实应用中 akka-stream 往往需要集成其它的外部系统形成完整的应用。这些外部系统可能是 akka 系列系统或者其它类型的系统。
+/**
+  * 在现实应用中 akka-stream 往往需要集成其它的外部系统形成完整的应用。这些外部系统可能是 akka 系列系统或者其它类型的系统。
   * 所以，akka-stream 提供了 mapAsync + ask 模式用来从一个运算中的数据流向外连接某个 Actor 来进行数据交换。那么就可以充分利用
   * actor 模式的 routing,cluster,supervison 等等功能来实现分布式高效安全的运算。
   *

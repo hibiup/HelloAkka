@@ -77,4 +77,60 @@ object Sample_1 {
         /** 6) 因为 onComplete 是异步操作，如果是最后一行，任务可能会被迫终止，因此退出前必须等待 result 完成。*/
         Await.result(result, 10 seconds)
     }
+
+    def what_is_NotUsed(): Unit = {
+        /**
+          * https://manuel.bernhardt.io/2017/05/22/akka-streams-notused/
+          *
+          * Akka Stream 是一个基于JVM的，非阻塞的，异步序列化串行，并支持背压反应式流之上一个强大的实现。这篇文章并不打算
+          * 解释这句话是什么意思，它不是关于Akka Stream怎么工作的。这篇文章的目的只是解释 Akka Stream 类型中 NotUsed 类
+          * 型签名到底是什么。顺带解释一下Akka Stream的基本设计思想。
+          *
+          * 为了理解 NotUsed 我们需要先明白 Akka Stream 是一个混合了两种“值”概念的怪兽：一个是跑在流里的“值”；和一个
+          * 最终产出，我们能够看到的“值”。看，Akka Stream 是运行在封闭状态下的，也就是说它有一个起点和一个终点（或
+          * 者说一个源（Source）和一个池（Sink）），并且从外部无法窥探它的内部。这并没什么问题，如果你只是想吧数据从A传递
+          * 到B点，但是如果你想让Stream给你看看它都产生了什么值，那么你将做不到，因为你接触不到内部。
+          *
+          * 让我们看一下下面这个例子（感谢我无与伦比的绘画技巧）：![]src/main/resources/stream.png
+          */
+        import akka.stream.scaladsl._
+        import scala.concurrent._
+
+        import akka.actor.ActorSystem
+        import akka.stream.ActorMaterializer
+
+        implicit val system = ActorSystem("testSystem")
+        implicit val materializer = ActorMaterializer()
+
+        val source = Source(List("a", "b", "c"))
+        val sink = Sink.fold[String, String]("")(_ + _)
+
+        val runnable: RunnableGraph[Future[String]] = source.toMat(sink)(Keep.right)
+        val result: Future[String] = runnable.run()
+        /**
+          * 到目前为止，除非你已经了解了 Akka Stream，否则我非常确定你已经把我跟丢了，这却是也是我想要的，这样你才能了解
+          * NotUsed 是什么。现在我们有一个 Source，它连续发射出 "a", "b" 然后是 "c"。接下去我们有一个 Sink 来接受并合并
+          * 它们。我们把这两个东西何在一起赋给 RunnableGraph － 之所以取这样一个名字是因为它有起点和终点，这个“图”
+          * （Graph）是封闭的，并且因此我们可以运行它。其中让我们很困惑的是下面这一行：
+          *
+          *   source.toMat(sink)(Keep.right)
+          *
+          * 接上话题：我们不仅希望我们的信息从Source流到Sink，我们也希望充Sink处获得最终的结果（"a","b"和 "c"的串联）。
+          * 这在 Akka 术语里这叫“物化”(materialization)，而为了执行物化，我们需要一个“物化器”。所以 source.toMat(sink)
+          * 的意思是“将Source连接到Sink并产生一个普通人可以从外部访问的值”。“好的，非常好！”你会说，“但是 Keep.right
+          * 是个什么？”。你这样问是正确(right)的（双关语），因为答案并不明显。
+          *
+          * 给你一点提示：特别是如果你是一个母语是从右到左语言的人：在Akka Streams中，图形从左向右流动。
+          *
+          * Akka Streams允许或者从左或者从右开始执行物化（或者叫“keep”）。在这里，我们希望从右边开始（流入Sink），这就
+          * 是为什么我们指定 Keep.right。你也可以要求从左边开始（在这个例子中这没什么意义，但是在其他更复杂的情况下，它完
+          * 全合理）。实际上，现在开始你应该开始读一下这一篇Akka文档：
+          * https://doc.akka.io/docs/akka/2.5/stream/stream-composition.html?language=scala#Materialized_values
+          *
+          * 在我们的例子中，物化值将会是一个String,但是如果我们并不在乎这个物化值呢？如果我们只是希望流能够执行，将元素从
+          * 一个地方推向另一个地方呢？是的，你猜对了，这就是我们用 NotUsed 来表达“我不在乎这个物化值是什么。”
+          * */
+        import scala.concurrent.duration.Duration._
+        Await.result(result,Inf).foreach(println)
+    }
 }

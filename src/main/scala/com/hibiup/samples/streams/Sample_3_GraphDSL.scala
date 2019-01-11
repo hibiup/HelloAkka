@@ -7,7 +7,8 @@ import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, Keep, Merge, RunnableGra
 
 import scala.concurrent.{Await, Future}
 
-/** 每当您想要执行任何类型的扇入（“多输入”）或扇出（“多输出”）操作时，都需要图表。 图形由简单的Flows构成，这些Flow用作图形中的线
+/**
+  * 每当您想要执行任何类型的扇入（“多输入”）或扇出（“多输出”）操作时，都需要图表。 图形由简单的Flows构成，这些Flow用作图形中的线
   * 性连接以及用作Flow的扇入和扇出点的连接点 。以下支持的扇入、扇出操作：
   *
   * Fan-out:
@@ -24,7 +25,6 @@ import scala.concurrent.{Await, Future}
   *   ZipWith[A,B,...,Out] – (N inputs, 1 output) which takes a function of N inputs that given a value for each input emits 1 output element
   *   Zip[A,B] – (2 inputs, 1 output) is a ZipWith specialised to zipping input streams of A and B into a (A,B) tuple stream
   *   Concat[A] – (2 inputs, 1 output) concatenates two streams (first consume one, then the second one)
-  *
   * */
 
 import scala.concurrent.duration._

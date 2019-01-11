@@ -7,4 +7,6 @@ class Sample_1_test extends FlatSpec{
     "Hello Akka Streams" should "" in {
         HelloAkkaStream()
     }
+
+    "what_is_NotUsed" should "" in what_is_NotUsed
 }

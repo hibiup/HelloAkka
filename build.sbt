@@ -12,6 +12,8 @@ val akkaTestkitVersion = "2.5.12"
 val scalaMockVersion = "4.1.0"
 val scalaMockAkkaSupportVersion = "3.6.0"
 
+val catsVersion = "1.0.1"
+
 //resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
 
 libraryDependencies ++= Seq(
@@ -23,5 +25,6 @@ libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-stream" % akkaVersion,
     "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
     "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
-    "com.typesafe" % "config" % typesafeConfigVersion
+    "com.typesafe" % "config" % typesafeConfigVersion,
+    "org.typelevel" %% "cats-core" % catsVersion
 )

@@ -43,7 +43,11 @@ object Sample_2_Backpressure {
                     Tweet(Author("mmartynas"), System.currentTimeMillis, "wow #mmartynas # !") ::
                     Nil)
 
-        /** 2）定义 Flow */
+        /**
+          * 2）定义 Flow
+          *
+          * Flow 是一系列可串联的 monad 调用，这些调用可以直接衔接在 Source 后面，但是定义成 Flow 可以更好地重复使用
+          * */
         val tagFlow = Flow[Tweet].map(_.hashtags)   // 逐条消息过滤出其中的每个标签。
                 .reduce(_ ++ _)                     // 合并成一个Set并去除重复的标签。
                 .mapConcat(identity)                // 通过与“幺元”的结合还原Stream中的元素类型（否则下面的 "_" 将无法识别类型 ）
@@ -77,7 +81,12 @@ object Sample_2_Backpressure {
                   * (async 边界参考：asyncBoundary.png)
                   *
                   * 因为消息发送的速度（10mm）快于处理速度（1m），因为Buffer只能存放 2 条，并且采用了 dropTail
-                  * 策略，因此最终也就只接收了两条消息 */
+                  * 策略，因此最终也就只接收了两条消息
+                  *
+                  * 最终通过 runWith(Sink) 函数（隐式）调用  materializer 驱动整个执行过程。Stream 必须是 closed 的，
+                  * 因此直到最终被 append 上 Sink 之前都处于“静态”，并且物化器都没有开始工作。如果只想获得一个静态的
+                  * Stream，可以在这里替换成 runWith(Sink.ignore)
+                  * */
                 .async.runWith(writeHashtags)
 
         // 等待结束

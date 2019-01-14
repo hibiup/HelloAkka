@@ -95,7 +95,7 @@ object Integration_Examples {
         import akka.pattern.ask
         import akka.util.Timeout
 
-        /**
+        /***********************************************************************************
           * 1) 数据和运行环境准备
           *
           * 1-1) 定义数据类型
@@ -104,6 +104,8 @@ object Integration_Examples {
         final case class UserInfo(id:Int, first:String, last:String, lastLogin:Date)
 
         implicit val ec =  scala.concurrent.ExecutionContext.global
+        import concurrent.duration._
+
 
         /***********************************************************************************
           * 2) 构建 Actor system，它包含了大部分业务处理过程
@@ -112,48 +114,43 @@ object Integration_Examples {
           * */
         implicit val sys = ActorSystem("test-system")
 
-        def define_akka_system() = {
-            /** 定义 Login Actor */
-            val loginStateMonad = State[Credential, Date] { c =>
-                val lastLogin = if (c.userId % 5 == 0) null else new Date
-                (Credential(c.userId, Option(lastLogin)), lastLogin)
-            }
-            class LoginActor extends Actor {
-                override def receive: Receive = {
-                    case c:Credential =>
-                        sender ! loginStateMonad.run(c).value._1
-                }
-            }
-            val loginActor = sys.actorOf(Props(new LoginActor), name="loginActor")
-
-            /** 定义 LoginState => UserInfo 隐式转换和 Actor */
-            def getUserInfo(c:Credential) =  c match {
-                case Credential(id, Some(d)) => Option(UserInfo(id, s"First_$id", s"Last_$id", d))
-                case _ => Option(null)
-            }
-            class UserInfoActor extends Actor {
-                override def receive: Receive = {
-                    case c:Credential => {
-                        sender ! getUserInfo(c)
-                    }
-                }
-            }
-            val userInfoActor = sys.actorOf(Props(new UserInfoActor))
-
-            /** 定义 UserInfo => UserStateInfo:String Actor */
-            class UserStateActor extends Actor {
-                override def receive: Receive = {
-                    case Some(u:UserInfo) =>
-                        sender ! s"Last login date for user: '${u.first}, ${u.last}' is ${u.lastLogin}"
-                    case _ =>
-                        sender ! s"User has not been found!"
-                }
-            }
-            val userStateInfoActor = sys.actorOf(Props(new UserStateActor))
-
-            (loginActor, userInfoActor, userStateInfoActor)
+        /** 定义 Login Actor */
+        val loginStateMonad = State[Credential, Date] { c =>
+            val lastLogin = if (c.userId % 5 == 0) null else new Date
+            (Credential(c.userId, Option(lastLogin)), lastLogin)
         }
-        val (loginActorRef, userInfoActorRef, userStateInfoActorRef) = define_akka_system()
+        class LoginActor extends Actor {
+            override def receive: Receive = {
+                case c:Credential =>
+                    sender ! loginStateMonad.run(c).value._1
+            }
+        }
+        val loginActorRef = sys.actorOf(Props(new LoginActor), name="loginActor")
+
+        /** 定义 LoginState => UserInfo 隐式转换和 Actor */
+        def getUserInfo(c:Credential) =  c match {
+            case Credential(id, Some(d)) => Option(UserInfo(id, s"First_$id", s"Last_$id", d))
+            case _ => Option(null)
+        }
+        class UserInfoActor extends Actor {
+            override def receive: Receive = {
+                case c:Credential => {
+                    sender ! getUserInfo(c)
+                }
+            }
+        }
+        val userInfoActorRef = sys.actorOf(Props(new UserInfoActor))
+
+        /** 定义 UserInfo => UserStateInfo:String Actor */
+        class UserStateActor extends Actor {
+            override def receive: Receive = {
+                case Some(u:UserInfo) =>
+                    sender ! s"Last login date for user: '${u.first}, ${u.last}' is ${u.lastLogin}"
+                case _ =>
+                    sender ! s"User has not been found!"
+            }
+        }
+        val userStateInfoActorRef = sys.actorOf(Props(new UserStateActor))
 
 
         /***********************************************************************************
@@ -186,7 +183,6 @@ object Integration_Examples {
             .buffer(bufferSize * 100, overflowStrategy)
 
         /** 3-2) 定义处理 */
-        import concurrent.duration._
         implicit val timeout = Timeout(delay*10 seconds)
 
         val f1 = Flow[Credential]
@@ -244,6 +240,9 @@ object Integration_Examples {
             ClosedShape
         })
 
+        /***********************************************************************************
+          * 5) 执行
+          */
         //import akka.stream.ActorMaterializerSettings
         implicit val mat = ActorMaterializer(/*ActorMaterializerSettings(sys)
             .withInputBuffer(

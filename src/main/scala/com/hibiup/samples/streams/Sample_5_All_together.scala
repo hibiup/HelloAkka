@@ -2,9 +2,14 @@ package com.hibiup.samples.streams
 
 object Sample_5_All_together {
     /**
-      * 一个比较完整的 integration 的例子。
+      * 一个比较完整的 integration 的例子演示了 GraphDSL, Integration, BackPressure，和 Cats State Monad 的组合用法：
       *
-      * 包含了 GraphDSL + Integration + Backpressure，和 Cats State Monad
+      * 简单流程：
+      *   假设用户登录（credential.userid:Int）=>
+      *     设置登录时间(State Monad) =>
+      *       获取用户数据(UserInfo) =>
+      *         返回用户登录信息（String）=>
+      *           打印（有待改进为 IO Monad）
       * */
     def integration_with_graph() = {
         import java.util.Date
@@ -101,7 +106,7 @@ object Sample_5_All_together {
           * buffer size。 这里设置的其实是最小 size。参考：https://doc.akka.io/docs/akka/2.5/stream/stream-rate.html
           * */
         val bufferSize = 1
-        val overflowStrategy = OverflowStrategy.backpressure     // 定义 backpressure 策略为 backpressure，即要求上游减速
+        val overflowStrategy = OverflowStrategy.backpressure     // 定义 backPressure 策略为 backPressure，即要求上游减速
         def many_many_users(number:Int):Stream[Credential] = {
             println(s"  source => $number: ${new Date}")         // <-- 观察发送速度
             if (number>1) Credential(number, None) #:: many_many_users(number-1)    // 用 #:: 构建 Stream 流
@@ -152,7 +157,7 @@ object Sample_5_All_together {
         // 输入 String
         val end = Sink.foreach[String] { r =>
             Thread.sleep(delay)
-            println(r)
+            println(r)   // 有待改进为 IO Monad
         }
 
 

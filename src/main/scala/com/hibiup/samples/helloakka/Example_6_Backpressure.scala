@@ -95,6 +95,7 @@ object Example_6_Backpressure extends App{
                     context.stop(r.asInstanceOf[ActorRefRoutee].ref)
                     router.removeRoutee(r)
                 }
+                context.system.terminate()
             case p:PayLoad[_] ⇒
                 /** Router 不做什么事，除了路由转发 */
                 log.debug(s"${self.path}: route to child actor")
@@ -160,7 +161,7 @@ object Example_6_Backpressure extends App{
             rootRef ! PayLoad("Hello-14!")
             rootRef ! PayLoad("Hello-15!")
             rootRef ! PayLoad("Hello-16!")
-            Thread.sleep(5100)
+            Thread.sleep(5000)
             rootRef ! new Shutdown
             Await.result(system.terminate(), 10 second)
         }

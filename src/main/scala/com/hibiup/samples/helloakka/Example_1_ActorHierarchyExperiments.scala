@@ -1,6 +1,6 @@
 package com.hibiup.samples.helloakka
 
-package Sample_1_ActorHierarchyExperiment {
+package Example_1_ActorHierarchyExperiment {
     /**
       * Actor 以树状结构管理：https://doc.akka.io/docs/akka/2.5/guide/tutorial_1.html
       *
@@ -59,7 +59,7 @@ package Sample_1_ActorHierarchyExperiment {
 }
 
 
-package Sample_1_ActorHierarchyExperiment2 {
+package Exmple_1_ActorHierarchyExperiment2 {
     import akka.actor.{Actor, ActorSystem, Props}
     import scala.io.StdIn
     import scala.util.control.Breaks.{break, breakable}

@@ -8,7 +8,7 @@ import akka.util.Timeout
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration._
 
-object Sample_4_Exception {
+object Example_4_Exception {
     /** 参考：
       *   https://doc.akka.io/docs/akka/2.5/general/supervision.html
       *   https://hk.saowen.com/a/6eab3a51f5adc2c16663fec0c815dd2ca51cf5908c61f5a7d8957f7d8c03fd9b

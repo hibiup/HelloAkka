@@ -7,7 +7,7 @@ import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, RunnableGraph, Sink, Sou
 
 import scala.concurrent.{Await, Future}
 
-object Sample_2_Backpressure {
+object Example_2_Backpressure {
     /**
       * 下面这个例子通过模拟作者 Author 在 Tweet 发布标签 Hashtag(#abc) 来演示如何解决背压问题（backpressure）
       * */

@@ -1,6 +1,6 @@
 package com.hibiup.samples.streams
 
-object Sample_5_All_together {
+object Example_5_All_together {
     /**
       * 一个比较完整的 integration 的例子演示了 GraphDSL, Integration, BackPressure，和 Cats State Monad 的组合用法：
       *

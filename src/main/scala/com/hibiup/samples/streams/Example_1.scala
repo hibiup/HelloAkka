@@ -4,7 +4,7 @@ package com.hibiup.samples.streams
   *  Akka之Flow相关API总结: https://www.jianshu.com/p/91bf067f1a2a
   * */
 
-object Sample_1 {
+object Example_1 {
     def HelloAkkaStream() = {
         import akka.stream._
         import akka.stream.scaladsl._

@@ -154,10 +154,14 @@ object what_is_NotUsed extends App{
           * 一个地方推向另一个地方呢？是的，你猜对了，这就是我们用 NotUsed 来表达“我不在乎这个物化值是什么。”
           **/
         import scala.concurrent.duration.Duration._
+        import scala.concurrent.ExecutionContext.Implicits.global
+        result.onComplete{
+            case _ => {
+                system.terminate()
+                Await.result(system.whenTerminated, Duration.Inf)
+            }
+        }
         Await.result(result, Inf).foreach(println)
-
-        system.terminate()
-        Await.result(system.whenTerminated, Duration.Inf)
     }
 
     apply()

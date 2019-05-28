@@ -35,7 +35,7 @@ object Example_2_Backpressure {
         implicit val materializer = ActorMaterializer()
 
         /** 1）定义 Source：tweet 消息集合 */
-        val tweets: Source[Tweet, NotUsed] = Source(
+        def tweets: Source[Tweet, NotUsed] = Source(
             Tweet(Author("rolandkuhn"), System.currentTimeMillis, "#akka rocks!") ::
                     Tweet(Author("patriknw"), System.currentTimeMillis, "#akka !") ::
                     Tweet(Author("bantonsson"), System.currentTimeMillis, "aa #bantonsson #rocks !") ::
@@ -48,7 +48,7 @@ object Example_2_Backpressure {
           *
           * Flow 是一系列可串联的 monad 调用，这些调用可以直接衔接在 Source 后面，但是定义成 Flow 可以更好地重复使用
           * */
-        val tagFlow = Flow[Tweet].map(_.hashtags)   // 逐条消息过滤出其中的每个标签。
+        def tagFlow = Flow[Tweet].map(_.hashtags)   // 逐条消息过滤出其中的每个标签。
                 .reduce(_ ++ _)                     // 合并成一个Set并去除重复的标签。
                 .mapConcat(identity)                // 通过与“幺元”的结合还原Stream中的元素类型（否则下面的 "_" 将无法识别类型 ）
                 .map(_.name.toUpperCase)            // 取出 tag 转成大写
@@ -69,13 +69,13 @@ object Example_2_Backpressure {
         //val flatTagFlow: Source[Hashtag, NotUsed] = tweets.mapConcat(_.hashtags)
 
         /** 3） 定义一个 Sink 处理 HashTag，每 1 秒处理一条数据 */
-        val writeHashtags: Sink[String, Future[Done]] =  Sink.foreach{x =>
+        def writeHashtags: Sink[String, Future[Done]] =  Sink.foreach{x =>
             Thread.sleep(1000)
             println(x)
         }
 
         /** 4) 串起 Source -> Flow -> Sink */
-        val result = tweets.via(tagFlow)
+        def result = tweets.via(tagFlow)
                 .throttle(1, 10 microsecond)  // throttle 可以将流速限制在每10毫秒一条。
                 /** async 意味着从此以下执行在另外一个线程里。必须放在新线程中，否则发送任务也会休眠导致看不出效果。
                   * (async 边界参考：asyncBoundary.png)

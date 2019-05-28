@@ -79,5 +79,8 @@ object Integration_Examples {
 
         // 主动等待结束
         Await.result(result, 10 seconds)
+
+        sys.terminate()
+        Await.result(sys.whenTerminated, Duration.Inf)
     }
 }

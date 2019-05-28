@@ -1,5 +1,7 @@
 package com.hibiup.samples.streams
 
+import scala.concurrent.duration.Duration
+
 /**
   *  Akka之Flow相关API总结: https://www.jianshu.com/p/91bf067f1a2a
   * */
@@ -76,6 +78,9 @@ object Example_1 {
 
         /** 6) 因为 onComplete 是异步操作，如果是最后一行，任务可能会被迫终止，因此退出前必须等待 result 完成。*/
         Await.result(result, 10 seconds)
+
+        system.terminate()
+        Await.result(system.whenTerminated, Duration.Inf)
     }
 }
 
@@ -135,6 +140,9 @@ object what_is_NotUsed extends App{
           **/
         import scala.concurrent.duration.Duration._
         Await.result(result, Inf).foreach(println)
+
+        system.terminate()
+        Await.result(system.whenTerminated, Duration.Inf)
     }
 
     apply()

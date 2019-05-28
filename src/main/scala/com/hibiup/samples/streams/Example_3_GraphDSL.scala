@@ -80,5 +80,8 @@ object Example_3_GraphDSL {
 
         /** 3）因为 graph 具有 Future[Done] 返回值（第4步），因此我们可以等待它的执行结果。*/
         Await.result(g.run(), Duration.Inf)
+
+        system.terminate()
+        Await.result(system.whenTerminated, Duration.Inf)
     }
 }

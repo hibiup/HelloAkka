@@ -204,5 +204,8 @@ object Example_5_All_together {
                 maxSize = bufferSize)*/)
         import scala.concurrent.Await
         Await.result(g.run(), Duration.Inf)
+
+        sys.terminate()
+        Await.result(sys.whenTerminated, Duration.Inf)
     }
 }

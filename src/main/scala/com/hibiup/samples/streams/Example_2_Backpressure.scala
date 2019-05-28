@@ -91,5 +91,8 @@ object Example_2_Backpressure {
 
         // 等待结束
         Await.result(result, 10 seconds)
+
+        system.terminate()
+        Await.result(system.whenTerminated, Duration.Inf)
     }
 }

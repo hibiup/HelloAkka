@@ -77,8 +77,10 @@ object Example_1 {
         /** 6) 因为 onComplete 是异步操作，如果是最后一行，任务可能会被迫终止，因此退出前必须等待 result 完成。*/
         Await.result(result, 10 seconds)
     }
+}
 
-    def what_is_NotUsed(): Unit = {
+object what_is_NotUsed extends App{
+    def apply() = {
         /**
           * https://manuel.bernhardt.io/2017/05/22/akka-streams-notused/
           *
@@ -107,6 +109,7 @@ object Example_1 {
 
         val runnable: RunnableGraph[Future[String]] = source.toMat(sink)(Keep.right)
         val result: Future[String] = runnable.run()
+
         /**
           * 到目前为止，除非你已经了解了 Akka Stream，否则我非常确定你已经把我跟丢了，这却是也是我想要的，这样你才能了解
           * NotUsed 是什么。现在我们有一个 Source，它连续发射出 "a", "b" 然后是 "c"。接下去我们有一个 Sink 来接受并合并
@@ -129,8 +132,10 @@ object Example_1 {
           *
           * 在我们的例子中，物化值将会是一个String,但是如果我们并不在乎这个物化值呢？如果我们只是希望流能够执行，将元素从
           * 一个地方推向另一个地方呢？是的，你猜对了，这就是我们用 NotUsed 来表达“我不在乎这个物化值是什么。”
-          * */
+          **/
         import scala.concurrent.duration.Duration._
-        Await.result(result,Inf).foreach(println)
+        Await.result(result, Inf).foreach(println)
     }
+
+    apply()
 }

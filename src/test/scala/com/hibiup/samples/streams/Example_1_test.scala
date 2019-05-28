@@ -8,5 +8,5 @@ class Example_1_test extends FlatSpec{
         HelloAkkaStream()
     }
 
-    "what_is_NotUsed" should "" in what_is_NotUsed
+    "what_is_NotUsed" should "" in what_is_NotUsed()
 }

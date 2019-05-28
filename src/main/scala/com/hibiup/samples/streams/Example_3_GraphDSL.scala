@@ -79,6 +79,6 @@ object Example_3_GraphDSL {
         implicit val materializer = ActorMaterializer()
 
         /** 3）因为 graph 具有 Future[Done] 返回值（第4步），因此我们可以等待它的执行结果。*/
-        Await.result(g.run(), 10 second)
+        Await.result(g.run(), Duration.Inf)
     }
 }

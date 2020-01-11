@@ -28,7 +28,7 @@ object Pi extends App {
   class Worker extends Actor {
     // Worker 的接收消息接口。
     def receive = {
-      case Work(start, nrOfElements) ⇒
+      case Work(start, nrOfElements) =>
         // sender 定义在 Actor 中，由 implicit 方法绑定到消息的发起者，在这里指向 Master。
         // Result 接受 calculatePiFor() 的返回值，并将它返回给 sender
         sender ! Result(calculatePiFor(start, nrOfElements)) // perform the work
@@ -37,7 +37,7 @@ object Pi extends App {
     // calculatePiFor ...
     def calculatePiFor(start: Int, nrOfElements: Int): Double = {
       var acc = 0.0
-      for (i ← start until (start + nrOfElements))
+      for (i <- start until (start + nrOfElements))
          /**
            * (1 - (i % 2) * 2) 得到正负1
            * i 是因子的偏移量。例如：
@@ -85,13 +85,13 @@ object Pi extends App {
     )
 
     def receive = {
-      case Calculate ⇒
+      case Calculate =>
         // Master 接收到开始计算（Calculate）命令：.
-        for (i ← 0 until nrOfMessages)
+        for (i <- 0 until nrOfMessages)
           // 根据调用的次序，计算出每个 worker 负责的 chunk 偏移量和计算长度，初始化 work消息
           // 然后将消息依据 RoundRobinRouter 策略依次循环传给 workerRouter 代理。
           workerRouter ! Work(i * nrOfElements, nrOfElements)
-      case Result(value) ⇒
+      case Result(value) =>
         // 接受到来自某个 Worker 的返回消息：
         pi += value         // 累加返回的结果
         nrOfResults += 1    // 累计返回的数量
@@ -109,7 +109,7 @@ object Pi extends App {
     */
   class Listener extends Actor {
     def receive = {
-      case PiApproximation(pi, duration) ⇒
+      case PiApproximation(pi, duration) =>
         println("\n\tPi approximation: \t\t%s\n\tCalculation time: \t%s"
           .format(pi, duration))
 
@@ -119,7 +119,7 @@ object Pi extends App {
   }
 
   // 主入口
-  def calculate(nrOfWorkers: Int, nrOfElements: Int, nrOfMessages: Int) {
+  def calculate(nrOfWorkers: Int, nrOfElements: Int, nrOfMessages: Int) = {
     // 建立并初始化 akka
     val system = ActorSystem("PiSystem")
 

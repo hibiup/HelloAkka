@@ -2,7 +2,7 @@ package com.hibiup.samples.streams.sample_2
 
 import akka.{Done, NotUsed}
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, ClosedShape, OverflowStrategy}
+import akka.stream.{ActorMaterializer, ClosedShape, Materializer, OverflowStrategy}
 import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, RunnableGraph, Sink, Source}
 
 import scala.concurrent.{Await, Future}
@@ -21,7 +21,7 @@ object Example_2_Backpressure {
     final case class Tweet(author: Author, timestamp: Long, body: String) {
         // hashtags 分解推文，找出其中的标签(#开头的单词)，转换成 Set
         def hashtags: Set[Hashtag] = body.split(" ").collect {
-            case t if t.startsWith("#") ⇒ Hashtag(t.replaceAll("[^#\\w]", ""))
+            case t if t.startsWith("#") => Hashtag(t.replaceAll("[^#\\w]", ""))
         }.toSet
     }
     // Model
@@ -32,7 +32,7 @@ object Example_2_Backpressure {
 
         /** 1) 同样建立 akka 系统*/
         implicit val system = ActorSystem("reactive-tweets")
-        implicit val materializer = ActorMaterializer()
+        implicit val materializer = Materializer(system)
 
         /** 1）定义 Source：tweet 消息集合 */
         def tweets: Source[Tweet, NotUsed] = Source(

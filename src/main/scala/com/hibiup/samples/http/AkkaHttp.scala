@@ -4,7 +4,7 @@ import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
-import akka.stream.ActorMaterializer
+import akka.stream.Materializer
 import akka.http.scaladsl.server.Directives._
 
 import scala.concurrent.{Await, Future, Promise}
@@ -37,14 +37,14 @@ object FirstRoute {
         Future { Done }
     }
 
-    def apply(port:Int) {
+    def apply(port:Int) = {
         import scala.concurrent.duration._
 
         //val ending_promise = Promise[Boolean]()
 
         /** 1) 新建 Akka system */
         implicit val system = ActorSystem("my-system")
-        implicit val materializer = ActorMaterializer()
+        implicit val materializer = Materializer(system)
         implicit val executionContext = system.dispatcher
 
         /** 2) 定义 route */

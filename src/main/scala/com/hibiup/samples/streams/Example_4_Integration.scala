@@ -1,5 +1,7 @@
 package com.hibiup.samples.streams.sample_4
 
+import akka.stream.Materializer
+
 /**
   * 在现实应用中 akka-stream 往往需要集成其它的外部系统形成完整的应用。这些外部系统可能是 akka 系列系统或者其它类型的系统。
   * 所以，akka-stream 提供了 mapAsync + ask 模式用来从一个运算中的数据流向外连接某个 Actor 来进行数据交换。那么就可以充分利用
@@ -38,7 +40,7 @@ object Integration_Examples {
         /** 3) 新建 Akka system */
         implicit val sys = ActorSystem("demo-system")
         /** 4) 得到 Stream 的物化器 */
-        implicit val mat = ActorMaterializer()
+        implicit val mat = Materializer(sys)
 
         /** 5) 定义一个 ActorRef 池，初始化 3 个 Actor*/
         val numOfActors = 3

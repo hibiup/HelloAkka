@@ -61,12 +61,12 @@ class Device(groupId: String, deviceId: String) extends Actor with ActorLogging 
   override def postStop(): Unit = log.info("Device actor {}-{} stopped", groupId, deviceId)
 
   override def receive: Receive = {
-    case RecordTemperature(id, value) ⇒
+    case RecordTemperature(id, value) =>
       log.info("Recorded temperature reading {} with {}", value, id)
       lastTemperatureReading = Some(value)  // 设置内部温度变量
       sender() ! TemperatureRecorded(id)    // 返回成功消息
 
-    case ReadTemperature(id) ⇒
+    case ReadTemperature(id) =>
       sender() ! RespondTemperature(id, lastTemperatureReading)  // 读取内部温度变量
   }
 }

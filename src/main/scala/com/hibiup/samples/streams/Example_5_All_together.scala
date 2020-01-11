@@ -1,5 +1,7 @@
 package com.hibiup.samples.streams
 
+import akka.stream.Materializer
+
 object Example_5_All_together {
     /**
       * 一个比较完整的 integration 的例子演示了 GraphDSL, Integration, BackPressure，和 Cats State Monad 的组合用法：
@@ -107,10 +109,10 @@ object Example_5_All_together {
           * */
         val bufferSize = 1
         val overflowStrategy = OverflowStrategy.backpressure     // 定义 backPressure 策略为 backPressure，即要求上游减速
-        def many_many_users(number:Int):Stream[Credential] = {
+        def many_many_users(number:Int):LazyList[Credential] = {
             println(s"  source => $number: ${new Date}")         // <-- 观察发送速度
             if (number>1) Credential(number, None) #:: many_many_users(number-1)    // 用 #:: 构建 Stream 流
-            else Stream(Credential(number, None))
+            else LazyList(Credential(number, None))
         }
         /**
           * 设置 buffer size 和 overflow strategy。
@@ -198,10 +200,7 @@ object Example_5_All_together {
           *   * 注意1：buffer 的设置。参考：https://doc.akka.io/docs/akka/2.5/stream/stream-rate.html
           */
         //import akka.stream.ActorMaterializerSettings
-        implicit val mat = ActorMaterializer(/*ActorMaterializerSettings(sys)
-            .withInputBuffer(
-                initialSize = bufferSize,
-                maxSize = bufferSize)*/)
+        implicit val mat = Materializer(sys)
         import scala.concurrent.Await
         Await.result(g.run(), Duration.Inf)
 

@@ -1,5 +1,7 @@
 package com.hibiup.examples
 
+import java.util.concurrent.ForkJoinPool
+
 import org.scalatest.FlatSpec
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.pattern.ask
@@ -8,8 +10,6 @@ import com.hibiup.examples.Example_5_Couroutine._
 
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.concurrent.duration._
-import scala.concurrent.forkjoin.ForkJoinPool
-
 
 class Example_5_Couroutine extends FlatSpec{
     /**

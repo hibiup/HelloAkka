@@ -1,15 +1,80 @@
-val akkaVersion = "2.5.22"
-val scalaTestVersion = "3.0.5"
-val typesafeConfigVersion = "1.3.2"
-val akkaHttpVersion = "10.1.5"
-val akkaStreamVersion = "2.5.22"
-val akkaTestkitVersion = "2.5.22"
-val scalaMockVersion = "4.1.0"
-val scalaMockAkkaSupportVersion = "3.6.0"
-val catsVersion = "1.6.0"
-val slickVersion = "3.2.3"
-val H2Version = "1.4.197"
-val logbackVersion = "1.2.3"
+scalaVersion := "2.13.1"
+
+val ver = new {
+  val akka = "2.6.1"
+  val akkaHttp = "10.1.11"
+  val config = "1.3.1"
+  val logback = "1.2.3"
+  val monix = "3.1.0"
+  val scalaLog = "3.9.2"
+  val slick = "3.3.2"
+  val h2 = "1.4.197"
+}
+
+// DEPENDENCIES
+lazy val testing = Seq(
+  "org.scalatest" %% "scalatest" % "3.0.8",
+  "com.typesafe.akka" %% "akka-multi-node-testkit" % ver.akka,
+  "com.typesafe.akka" %% "akka-testkit" % ver.akka,
+)
+
+lazy val logging ={
+  Seq(
+    "ch.qos.logback" % "logback-classic" % ver.logback,
+    "com.typesafe.scala-logging" %% "scala-logging" % ver.scalaLog,
+    "com.typesafe.akka" %% "akka-slf4j" % ver.akka
+  )
+}
+
+lazy val config = {
+  Seq(
+    "com.typesafe" % "config" % ver.config
+  )
+}
+
+lazy val akka = {
+  Seq(
+    "com.typesafe.akka" %% "akka-actor" % ver.akka,
+    "com.typesafe.akka" %% "akka-stream" % ver.akka,
+    "com.typesafe.akka" %% "akka-cluster" % ver.akka,
+    "com.typesafe.akka" %% "akka-cluster-metrics" % ver.akka,
+    "com.typesafe.akka" %% "akka-serialization-jackson" % ver.akka,
+    "com.typesafe.akka" %% "akka-http" % ver.akkaHttp,
+    "com.typesafe.akka" %% "akka-http-spray-json" % ver.akkaHttp,
+    "com.typesafe.akka" %% "akka-cluster-tools" % ver.akka,
+    "com.typesafe.akka" %% "akka-persistence" % ver.akka
+  )
+}
+
+lazy val database = {
+  Seq(
+    "com.typesafe.slick" %% "slick" % ver.slick,
+    "com.typesafe.slick" %% "slick-hikaricp" % ver.slick,
+    "com.h2database" % "h2" % ver.h2,
+  )
+}
+
+lazy val twirl = {
+  Seq(
+    "com.typesafe.play" %% "twirl-api"  % "1.5.0"
+  )
+}
+
+lazy val monix = {
+  Seq(
+    "io.monix" %% "monix" % ver.monix
+  )
+}
+
+lazy val compilerOptions = Seq(
+  "-deprecation",
+  "-encoding", "UTF-8",
+  "-language:higherKinds",
+  "-language:postfixOps",
+  "-feature",
+  //"-Ypartial-unification",
+  "-Xfatal-warnings",
+)
 
 lazy val root = (project in file("."))
         .settings(
@@ -17,39 +82,12 @@ lazy val root = (project in file("."))
             version := "1.0",
             scalaVersion := "2.12.8",
             resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-            libraryDependencies ++= Seq(
-                "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,
-                "com.typesafe.akka" %% "akka-testkit" % akkaTestkitVersion % Test,
-                "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
-                "org.scalamock" %% "scalamock-scalatest-support" % scalaMockAkkaSupportVersion % Test,
-                // logging
-                "ch.qos.logback" % "logback-classic" % logbackVersion,
-                "com.typesafe.akka" %% "akka-slf4j" % "2.5.22",
-                // Akka Actor, Stream and Http
-                "com.typesafe.akka" %% "akka-actor" % akkaVersion,
-                "com.typesafe.akka" %% "akka-stream" % akkaVersion,
-                "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
-                "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
+            libraryDependencies ++= testing.map(_ % Test) ++ logging++ config ++ akka ++ twirl ++ monix ++ database ++ Seq(
                 // Akka persistant
-                "com.typesafe.akka" %% "akka-persistence" % akkaVersion,
-                "com.github.dnvriend" %% "akka-persistence-jdbc" % "3.5.0",
-                "org.iq80.leveldb" % "leveldb" % "0.7",
-                "org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",
-                // JDBC
-                "com.typesafe.slick" %% "slick" % slickVersion,
-                "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
-                "com.h2database" % "h2" % H2Version,
-                // Others
-                "com.typesafe" % "config" % typesafeConfigVersion,
-                "org.typelevel" %% "cats-core" % catsVersion,
+                //"com.github.dnvriend" %% "akka-persistence-jdbc" % "3.5.0",
+                //"org.iq80.leveldb" % "leveldb" % "0.7",s
+                //"org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",
             ),
             //addSbtPlugin("org.lyranthe.sbt" % "partial-unification" % "1.1.2")
-            scalacOptions ++= Seq(
-                "-language:higherKinds",
-                "-deprecation",
-                "-encoding", "UTF-8",
-                "-Ypartial-unification",
-                "-feature",
-                "-language:_"
-            )
-        )
+          scalacOptions ++= compilerOptions
+        ).enablePlugins(SbtTwirl)

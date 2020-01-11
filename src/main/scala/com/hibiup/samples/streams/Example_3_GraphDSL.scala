@@ -2,7 +2,7 @@ package com.hibiup.samples.streams.sample_2
 
 import akka.actor.ActorSystem
 import akka.{Done, NotUsed}
-import akka.stream.{ActorMaterializer, ClosedShape}
+import akka.stream.{ActorMaterializer, ClosedShape, Materializer}
 import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, Keep, Merge, RunnableGraph, Sink, Source}
 
 import scala.concurrent.{Await, Future}
@@ -76,7 +76,7 @@ object Example_3_GraphDSL {
         implicit val system = ActorSystem("reactive-tweets")
 
         /** 2）获得 GraphDSL 的“物化”器 */
-        implicit val materializer = ActorMaterializer()
+        implicit val materializer = Materializer(system)
 
         /** 3）因为 graph 具有 Future[Done] 返回值（第4步），因此我们可以等待它的执行结果。*/
         Await.result(g.run(), Duration.Inf)

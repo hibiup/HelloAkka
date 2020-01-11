@@ -39,19 +39,19 @@ package Example_1_ActorHierarchyExperiment {
     class PrintMyActorRefActor extends Actor {
          override def receive: Receive = {
              /** 2-1) 接受到消息 */
-            case "printit" ⇒
+            case "printit" =>
                 /** 3) 通过 context.actorOf() 生成一个新的子节点。 context 是个隐式 ActorContext 实例，它保存有 actor
                   *    树的上下文，通过它来加入子节点。*/
                 val secondRef = context.actorOf(Props[PrintMyActorRefActor], "second-actor")
                 println(s"Second: $secondRef")
 
             /** 2-2) 模拟输出错误 */
-            case "fail" ⇒
+            case "fail" =>
                 println("ACTOR FAILS NOW!")
                 throw new Exception("I failed!")
 
             /** 2-3) 如果收到 stop，就删除自己．(会连同删除以下子节点, 父子 actor　被删除时逐个输出 stopped) ．*/
-            case "stop" ⇒ context.stop(self)
+            case "stop" => context.stop(self)
         }
         override def preStart(): Unit = println(s"[started] $this")
         override def postStop(): Unit = println(s"[stopped] $this")
@@ -91,12 +91,12 @@ package Exmple_1_ActorHierarchyExperiment2 {
     class SupervisorActor extends Actor {
         override def receive: Receive = {
             /** 3-1) 当根节点收到消息时，通过 context 实例添加一个子节点 */
-            case "new" ⇒
+            case "new" =>
                 val childRef = context.actorOf(Props[ChildActor], "second-actor")
                 println(s"Second: $childRef")
 
             /** 4) 向子节点发送消息 */
-            case msg ⇒ context.child("second-actor").get ! msg
+            case msg => context.child("second-actor").get ! msg
         }
     }
 
@@ -110,7 +110,7 @@ package Exmple_1_ActorHierarchyExperiment2 {
                 throw new Exception("I failed!")
 
             /** 4-2) 子节点停止 */
-            case "stop" ⇒
+            case "stop" =>
                 // actor 主动终结自己的方式。终结之前，它会调用 postStop() 方法
                 println(s"I'm killing myself! $self")
                 context.stop(self)

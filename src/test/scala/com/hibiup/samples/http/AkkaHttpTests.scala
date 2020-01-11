@@ -5,7 +5,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model.{RequestEntity, _}
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
-import akka.stream.ActorMaterializer
+import akka.stream.{ActorMaterializer, Materializer}
 import org.scalatest.FlatSpec
 import spray.json.JsObject
 
@@ -44,7 +44,7 @@ class AkkaHttpTests extends FlatSpec  {
 
         /** 1) 获得测试类 AkkaHttpTest 中的 Http() 所需要得 ActorSystem 和 ActorMaterializer  */
         implicit val system = ActorSystem("my-system")
-        implicit val actorMaterializer = ActorMaterializer()
+        implicit val actorMaterializer = Materializer(system)
         implicit val dispatcher = system.dispatcher
 
         /* 用 AkkaHttpTest 测试类来请求服务，我们将在这个类中（从 Akka http 中）创建一个 http 客户端来请求服务。 */
@@ -66,7 +66,7 @@ class AkkaHttpTests extends FlatSpec  {
         import spray.json.DefaultJsonProtocol._
 
         implicit val system = ActorSystem("my-system")
-        implicit val actorMaterializer = ActorMaterializer()
+        implicit val actorMaterializer = Materializer(system)
         implicit val dispatcher = system.dispatcher
 
         implicit val itemFormat = jsonFormat2(Item)    // Item 有两个类型参数: String, Long
@@ -84,7 +84,7 @@ class AkkaHttpTests extends FlatSpec  {
                 case x => Future.successful(Left(x))
             }
         }, 10 seconds).map{x =>
-            assert(x.getOrElse() == StatusCodes.NotFound)
+            assert(x.getOrElse(StatusCodes.NotFound) == StatusCodes.NotFound)
         }
 
         Marshal(Order(Item(itemValue, itemNumner)::Nil)).to[RequestEntity] flatMap { e =>

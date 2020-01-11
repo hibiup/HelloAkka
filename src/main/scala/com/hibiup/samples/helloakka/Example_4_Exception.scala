@@ -2,7 +2,7 @@ package com.hibiup.samples.helloakka
 
 import akka.actor.SupervisorStrategy.{Escalate, Restart, Resume, Stop}
 import akka.actor.{Actor, ActorSystem, OneForOneStrategy, Props, SupervisorStrategy}
-import akka.pattern.{Backoff, BackoffSupervisor, ask}
+import akka.pattern.{Backoff, BackoffOpts, BackoffSupervisor, ask}
 import akka.util.Timeout
 
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -111,22 +111,21 @@ object Example_4_Exception {
         val supervisor = BackoffSupervisor.props(
             /** 当一个应该永远存在的 Actor 由于某个原因而停止时用 onStop。
               * 当一个 Actor 因为异常而失败时用 onFailure。*/
-            Backoff.onFailure(
+            BackoffOpts.onFailure(
                 /** 在 supervisor 中引用 root props */
                 rootProps,
                 childName = "root-actor",
                 minBackoff = 3.seconds,
                 maxBackoff = 30.seconds,
                 randomFactor = 0.2, // adds 20% "noise" to vary the intervals slightly
-                maxNrOfRetries = -1
             ).withAutoReset(10.seconds) // reset if the child does not throw any errors within 10 seconds
                     .withSupervisorStrategy(
                 OneForOneStrategy() {
-                    case e: Exception ⇒ {
+                    case e: Exception => {
                         e.printStackTrace()
                         Resume  // 忽略错误
                     }
-                    case _ ⇒ Escalate
+                    case _ => Escalate
                 }))
 
         /** A-2 通过 supervisor 启动 root Actor */

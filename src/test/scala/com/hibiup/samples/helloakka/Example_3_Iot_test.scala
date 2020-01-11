@@ -10,7 +10,7 @@ import org.scalatest._
   */
 class Example_3_Iot_test extends TestKit(ActorSystem("TestSpec"))
   with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
-    override def afterAll
+    override def afterAll =
     {
       TestKit.shutdownActorSystem(system)
     }

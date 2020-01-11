@@ -41,13 +41,13 @@ object Example_6_Backpressure extends App{
                     })
 
                 def receive = {
-                    case t:Terminated ⇒
+                    case t:Terminated =>
                         /** 逐个停止被代理的 actor */
                         router.routees.foreach { r =>
                             context.stop(r.asInstanceOf[ActorRefRoutee].ref)
                             router.removeRoutee(r)
                         }
-                    case p:PayLoad[_] ⇒ {
+                    case p:PayLoad[_] => {
                         /** Router 不做什么事，除了路由转发 */
                         log.info(s"${self.path}: route to child actor")
                         router.route(p, sender())

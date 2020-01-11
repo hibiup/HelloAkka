@@ -3,14 +3,13 @@ package com.hibiup.samples.streams
 import java.io
 
 import akka.NotUsed
-import akka.stream.scaladsl.Source
+import akka.stream.Materializer
 
 import scala.concurrent.duration.Duration
 
 /**
   *  Akka之Flow相关API总结: https://www.jianshu.com/p/91bf067f1a2a
   * */
-
 object Example_1 {
     def HelloAkkaStream() = {
         import akka.stream._
@@ -32,7 +31,7 @@ object Example_1 {
         /**
           * 2）基于 ActorSystem 生成 Akka Stream 的执行引擎。 这个引擎将从数据源中读取数据，并将数据传递给执行函数。
           * */
-        implicit val materializer = ActorMaterializer() // 隐式获得 system。并生成隐式 ActorMeterializer 实例。
+        implicit val materializer = Materializer(system) // 隐式获得 system。并生成隐式 ActorMeterializer 实例。
 
         implicit val ec = system.dispatcher    // 隐式生成 ExecutionContext(线程池) 的子类 ExecutionContextExecutor
 
@@ -72,11 +71,11 @@ object Example_1 {
           * */
         // Flow: scan + zip。 scan 方法类似 fold，初始值是 BitInt(1),然后逐个取出 Source 中的元素 next，得到每一级的阶
         //       乘值 acc，将结果集传给下一级 zip Flow。
-        def factorials = source.scan(BigInt(1))((acc, next) ⇒ {/* println(acc, next);*/ acc * next })
-            .zipWith(Source(0 to 100))((num, idx) ⇒ s"$idx! = $num")
+        def factorials = source.scan(BigInt(1))((acc, next) => {/* println(acc, next);*/ acc * next })
+            .zipWith(Source(0 to 100))((num, idx) => s"$idx! = $num")
         // Flow: map
         def accent: Future[IOResult] =
-            factorials.map(line ⇒ ByteString(s"$line\r\n"))
+            factorials.map(line => ByteString(s"$line\r\n"))
                 .runWith{
                     // Sink
                     FileIO.toPath(Paths.get("C:\\\\Temp\\numbers.txt"))
@@ -87,7 +86,7 @@ object Example_1 {
           *
           * 关闭方法由 Future 的 onComplete 回调函数执行，回调函数隐式获得 AkkaSystem 的执行上下文。*/
         def result: Future[List[io.Serializable]] = Future.sequence(List(done,accent))
-        result.onComplete(_ ⇒ { println("Finish!!");system.terminate() }) // 隐式获得 ec
+        result.onComplete(_ => { println("Finish!!");system.terminate() }) // 隐式获得 ec
 
         /**
           * 6) 因为 onComplete 是异步操作，如果是最后一行，任务可能会被迫终止，因此退出前必须等待 result 完成。
@@ -122,7 +121,7 @@ object what_is_NotUsed extends App{
         import akka.stream.ActorMaterializer
 
         implicit val system = ActorSystem("testSystem")
-        implicit val materializer = ActorMaterializer()
+        implicit val materializer = Materializer(system)
 
         def source:Source[String, NotUsed] = Source(List("a", "b", "c"))
         def sink: Sink[String, Future[String]] = Sink.fold[String, String]("")(_ + _)
@@ -155,8 +154,7 @@ object what_is_NotUsed extends App{
           **/
         import scala.concurrent.duration.Duration._
         import scala.concurrent.ExecutionContext.Implicits.global
-        result.onComplete{
-            case _ => {
+        result.onComplete { _ => {
                 system.terminate()
                 Await.result(system.whenTerminated, Duration.Inf)
             }

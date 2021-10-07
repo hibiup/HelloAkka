@@ -1,30 +1,27 @@
-scalaVersion := "2.13.1"
 
 val ver = new {
   val akka = "2.6.1"
   val akkaHttp = "10.1.11"
-  val config = "1.3.1"
-  val logback = "1.2.3"
-  val monix = "3.1.0"
-  val scalaLog = "3.9.2"
-  val slick = "3.3.2"
-  val h2 = "1.4.197"
+  val config = "1.4.1"
+  val logback = "1.2.6"
+  val monix = "3.4.0"
+  val scalaLog = "3.9.4"
+  val slick = "3.3.3"
+  val h2 = "1.4.200"
 }
 
 // DEPENDENCIES
 lazy val testing = Seq(
-  "org.scalatest" %% "scalatest" % "3.0.8",
-  "com.typesafe.akka" %% "akka-multi-node-testkit" % ver.akka,
-  "com.typesafe.akka" %% "akka-testkit" % ver.akka,
+  "org.scalatest" %% "scalatest" % "3.0.8"
+  ,"com.typesafe.akka" %% "akka-multi-node-testkit" % ver.akka
+  ,"com.typesafe.akka" %% "akka-testkit" % ver.akka
 )
 
-lazy val logging ={
-  Seq(
-    "ch.qos.logback" % "logback-classic" % ver.logback,
-    "com.typesafe.scala-logging" %% "scala-logging" % ver.scalaLog,
-    "com.typesafe.akka" %% "akka-slf4j" % ver.akka
-  )
-}
+lazy val logging = Seq(
+  "ch.qos.logback" % "logback-classic" % ver.logback
+  ,"com.typesafe.scala-logging" %% "scala-logging" % ver.scalaLog
+  ,"com.typesafe.akka" %% "akka-slf4j" % ver.akka
+)
 
 lazy val config = {
   Seq(
@@ -48,9 +45,9 @@ lazy val akka = {
 
 lazy val database = {
   Seq(
-    "com.typesafe.slick" %% "slick" % ver.slick,
-    "com.typesafe.slick" %% "slick-hikaricp" % ver.slick,
-    "com.h2database" % "h2" % ver.h2,
+    "com.typesafe.slick" %% "slick" % ver.slick
+    ,"com.typesafe.slick" %% "slick-hikaricp" % ver.slick
+    ,"com.h2database" % "h2" % ver.h2
   )
 }
 
@@ -73,21 +70,22 @@ lazy val compilerOptions = Seq(
   "-language:postfixOps",
   "-feature",
   //"-Ypartial-unification",
-  "-Xfatal-warnings",
+  "-Xfatal-warnings"
 )
 
 lazy val root = (project in file("."))
-        .settings(
-            name := "HelloAkka",
-            version := "1.0",
-            scalaVersion := "2.12.8",
-            resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-            libraryDependencies ++= testing.map(_ % Test) ++ logging++ config ++ akka ++ twirl ++ monix ++ database ++ Seq(
-                // Akka persistant
-                //"com.github.dnvriend" %% "akka-persistence-jdbc" % "3.5.0",
-                //"org.iq80.leveldb" % "leveldb" % "0.7",s
-                //"org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",
-            ),
-            //addSbtPlugin("org.lyranthe.sbt" % "partial-unification" % "1.1.2")
-          scalacOptions ++= compilerOptions
-        ).enablePlugins(SbtTwirl)
+  .settings(
+    name := "HelloAkka"
+    ,version := "1.0"
+    //scalaVersion := "2.12.8",
+    ,scalaVersion := "2.13.6"
+    //resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+    ,libraryDependencies ++= testing.map(_ % Test) ++ logging++ config ++ akka ++ twirl ++ monix ++ database ++ Seq(
+      // Akka persistant
+      //"com.github.dnvriend" %% "akka-persistence-jdbc" % "3.5.0",
+      //"org.iq80.leveldb" % "leveldb" % "0.7",s
+      //"org.fusesource.leveldbjni" % "leveldbjni-all" % "1.8",
+    )
+    //addSbtPlugin("org.lyranthe.sbt" % "partial-unification" % "1.1.2")
+    ,scalacOptions ++= compilerOptions
+  ).enablePlugins(SbtTwirl)

@@ -25,7 +25,7 @@ class Example_5_Couroutine extends FlatSpec{
     "Greeting akka actor" should "be driven by message" in {
         implicit val timeout = Timeout(10 seconds)
 
-        val greetingActorRef = ActorSystem("testSystem").actorOf(Props[GreetingActor])
+        val greetingActorRef = ActorSystem("testSystem").actorOf(Props[GreetingActor]())
         val ret = Await.result(greetingActorRef ? Who("World"), timeout.duration)
         ret match {case Greeting(msg:String) => println(msg); assert(msg == "Hello, World!")}
     }
@@ -97,7 +97,7 @@ class Example_5_Couroutine extends FlatSpec{
         /** 新建一个线程，其中有 3 个 player */
         implicit val player: ExecutionContext = ExecutionContext.fromExecutor(new ForkJoinPool(3))
         implicit val system = ActorSystem.create("testSystem", null, null, player)
-        val gameRef = system.actorOf(Props[GameActor])
+        val gameRef = system.actorOf(Props[GameActor]())
 
         /** 定义击球动作（业务方法） */
         def playGame[T](actor:ActorRef, hit:T):Unit = (actor ? hit).map{ case x:Hit => playGame(actor, x) }
@@ -194,7 +194,7 @@ object Example_5_Couroutine {
 
     class GreetingActor extends Actor {
         override def receive: Receive = {
-            case Who(name: String) => sender ! Greeting(s"Hello, ${name}!")
+            case Who(name: String) => sender() ! Greeting(s"Hello, ${name}!")
         }
     }
 
@@ -205,7 +205,7 @@ object Example_5_Couroutine {
         override def receive: Receive = {
             case Hit(ball: Int, count: Int) => {
                 println(s"Thread-${Thread.currentThread.getId}: Ball $ball with $count hits!")
-                sender ? Hit(ball, count + 1)
+                sender() ? Hit(ball, count + 1)
             }
         }
     }

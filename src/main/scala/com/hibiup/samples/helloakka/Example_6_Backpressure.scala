@@ -72,7 +72,7 @@ object Example_6_Backpressure extends App{
     object BackPressureExample {
         def apply(): Unit = {
             val system = ActorSystem("testSystem", akkaSystemConfiguration)
-            val rootRef = system.actorOf(AddRouter(Props[ChildActor].withMailbox("bounded-mailbox"), instance = 5), "actor-router")
+            val rootRef = system.actorOf(AddRouter(Props[ChildActor]().withMailbox("bounded-mailbox"), instance = 5), "actor-router")
             rootRef ! PayLoad("Hello-1!")
             rootRef ! PayLoad("Hello-2!")
             rootRef ! PayLoad("Hello-3!")

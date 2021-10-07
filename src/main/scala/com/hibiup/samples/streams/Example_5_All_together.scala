@@ -54,7 +54,7 @@ object Example_5_All_together {
         class LoginActor extends Actor {
             override def receive: Receive = {
                 case c:Credential =>
-                    sender ! loginStateMonad.run(c).value._1  // 调用 State monad
+                    sender() ! loginStateMonad.run(c).value._1  // 调用 State monad
             }
         }
         val loginActorRef = sys.actorOf(Props(new LoginActor), name="loginActor")
@@ -82,9 +82,9 @@ object Example_5_All_together {
         class UserStateActor extends Actor {
             override def receive: Receive = {
                 case Some(u:UserInfo) =>
-                    sender ! s"Last login date for user: '${u.first}, ${u.last}' is ${u.lastLogin}"
+                    sender() ! s"Last login date for user: '${u.first}, ${u.last}' is ${u.lastLogin}"
                 case _ =>
-                    sender ! s"User has not been found!"
+                    sender() ! s"User has not been found!"
             }
         }
         val userStateInfoActorRef = sys.actorOf(Props(new UserStateActor))

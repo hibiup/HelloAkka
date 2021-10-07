@@ -31,7 +31,7 @@ object Pi extends App {
       case Work(start, nrOfElements) =>
         // sender 定义在 Actor 中，由 implicit 方法绑定到消息的发起者，在这里指向 Master。
         // Result 接受 calculatePiFor() 的返回值，并将它返回给 sender
-        sender ! Result(calculatePiFor(start, nrOfElements)) // perform the work
+        sender() ! Result(calculatePiFor(start, nrOfElements)) // perform the work
     }
 
     // calculatePiFor ...
@@ -81,7 +81,7 @@ object Pi extends App {
     //val workerRouter = context.actorOf(
     //  Props[Worker].withRouter(RoundRobinRouter(nrOfWorkers)), name = "workerRouter")
     val workerRouter = context.actorOf(
-      RoundRobinPool(nrOfWorkers).props(Props[Worker]), "workerRouter"
+      RoundRobinPool(nrOfWorkers).props(Props[Worker]()), "workerRouter"
     )
 
     def receive = {
@@ -124,7 +124,7 @@ object Pi extends App {
     val system = ActorSystem("PiSystem")
 
     // 建立主监听 actor
-    val listener = system.actorOf(Props[Listener], name = "listener")
+    val listener = system.actorOf(Props[Listener](), name = "listener")
 
     // 建立 master actor
     val master = system.actorOf(

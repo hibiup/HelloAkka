@@ -67,7 +67,7 @@ object Example_4_Exception {
 
         /** B-2）正常建立子 Actor */
         override def preStart() : Unit = {
-            context.actorOf(Props[ChileActor], "will-fail-actor")// start the child when supervisor starts
+            context.actorOf(Props[ChileActor](), "will-fail-actor")// start the child when supervisor starts
         }
 
         override def postStop(): Unit = {

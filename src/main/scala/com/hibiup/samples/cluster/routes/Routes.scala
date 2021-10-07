@@ -33,7 +33,7 @@ object Implicits {
              *
              * （参见 FrontEndActor 的说明）
              */
-            system.actorOf(Props[RouteActor], name="Frontend")
+            system.actorOf(Props[RouteActor](), name="Frontend")
 
             /**
              * 启动一个Http 服务来测试 Cluster

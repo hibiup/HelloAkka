@@ -18,7 +18,7 @@ package Example_1_ActorHierarchyExperiment {
             val system = ActorSystem("testSystem")
 
             /** 1-2) 通过 system.actorOf (在 /user 下)生成应用的顶级节点。生成的参考模板（类）是 PrintMyActorRefActor */
-            val firstRef = system.actorOf(Props[PrintMyActorRefActor], "first-actor")
+            val firstRef = system.actorOf(Props[PrintMyActorRefActor](), "first-actor")
             println(s"First: $firstRef")
 
             /** 1-3) 向该节点发送一个消息 */
@@ -42,7 +42,7 @@ package Example_1_ActorHierarchyExperiment {
             case "printit" =>
                 /** 3) 通过 context.actorOf() 生成一个新的子节点。 context 是个隐式 ActorContext 实例，它保存有 actor
                   *    树的上下文，通过它来加入子节点。*/
-                val secondRef = context.actorOf(Props[PrintMyActorRefActor], "second-actor")
+                val secondRef = context.actorOf(Props[PrintMyActorRefActor](), "second-actor")
                 println(s"Second: $secondRef")
 
             /** 2-2) 模拟输出错误 */
@@ -70,7 +70,7 @@ package Exmple_1_ActorHierarchyExperiment2 {
             val system = ActorSystem("testSystem")
 
             /*2 为新建一个管理树生成顶级节点. Props 根据参数类型返回 actor 实例. */
-            val rootRef = system.actorOf(Props[SupervisorActor], "first-actor")
+            val rootRef = system.actorOf(Props[SupervisorActor](), "first-actor")
             println(s"Root: $rootRef")
 
             println(">>> Press \"q\" to exit <<<")
@@ -92,7 +92,7 @@ package Exmple_1_ActorHierarchyExperiment2 {
         override def receive: Receive = {
             /** 3-1) 当根节点收到消息时，通过 context 实例添加一个子节点 */
             case "new" =>
-                val childRef = context.actorOf(Props[ChildActor], "second-actor")
+                val childRef = context.actorOf(Props[ChildActor](), "second-actor")
                 println(s"Second: $childRef")
 
             /** 4) 向子节点发送消息 */
@@ -120,7 +120,7 @@ package Exmple_1_ActorHierarchyExperiment2 {
         override def preStart(): Unit = {
             println("child started")
             /** 5) 加入一个哑孙节点 */
-            context.actorOf(Props[GrandChildActor], "second")
+            context.actorOf(Props[GrandChildActor](), "second")
         }
 
         override def postStop(): Unit = println("child stopped")

@@ -10,8 +10,7 @@ import org.scalatest._
   */
 class Example_3_Iot_test extends TestKit(ActorSystem("TestSpec"))
   with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
-    override def afterAll =
-    {
+    override def afterAll() = {
       TestKit.shutdownActorSystem(system)
     }
 
@@ -27,10 +26,6 @@ class Example_3_Iot_test extends TestKit(ActorSystem("TestSpec"))
       response.requestId should ===(42)
       response.value should ===(None)  // 首次调用返回的温度是 None
     }
-
-  it should {
-
-  }
 
     "返回最后一次设置的温度" in {
       val probe = TestProbe()

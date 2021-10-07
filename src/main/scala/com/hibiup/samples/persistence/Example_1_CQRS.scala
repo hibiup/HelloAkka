@@ -104,7 +104,7 @@ package Example_1_CQRS {
         val logger = LoggerFactory.getLogger(this.getClass)
 
         val system = ActorSystem("example")
-        val persistentActor = system.actorOf(Props[ExamplePersistentActor], "persistentActor-4-scala")
+        val persistentActor = system.actorOf(Props[ExamplePersistentActor](), "persistentActor-4-scala")
 
         persistentActor ! Cmd("foo")
         persistentActor ! Cmd("baz")

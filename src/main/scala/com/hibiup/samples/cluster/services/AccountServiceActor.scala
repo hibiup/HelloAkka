@@ -7,7 +7,7 @@ import akka.stream.Materializer
 import com.hibiup.samples.cluster.{AccountServiceRegistration, Message, Result}
 
 object AccountServiceActor{
-    def apply(system:ActorSystem, mat:Materializer, name:String = "AccountService") = system.actorOf(Props[AccountServiceActor], name = name)
+    def apply(system:ActorSystem, mat:Materializer, name:String = "AccountService") = system.actorOf(Props[AccountServiceActor](), name = name)
 }
 
 /**
